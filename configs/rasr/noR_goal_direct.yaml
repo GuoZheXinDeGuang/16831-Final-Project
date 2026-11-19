@@ -1,0 +1,4 @@
+mode: repair_noR
+novelty_beta: 0.0
+repair_max_novelty: 0.0
+fallback: goal_direct

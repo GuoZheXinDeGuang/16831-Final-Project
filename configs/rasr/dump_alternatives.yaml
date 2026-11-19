@@ -1,0 +1,4 @@
+mode: rerank
+lam: 0.0
+passthrough: true
+dump_alt_k: 4

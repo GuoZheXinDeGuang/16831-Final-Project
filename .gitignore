@@ -1,0 +1,18 @@
+# upstream code, data, checkpoints (see docs/RUN.md "Setup" to recreate)
+H-JEPA/
+hjepa_home/
+# raw experiment outputs (GBs); a small curated copy lives in results/ (scripts/export_results.py)
+outputs/
+.cache/
+install.log
+__pycache__/
+*.pyc
+.pytest_cache/
+# course LaTeX template files (not part of the code)
+corl_2023.sty
+corlabbrvnat.bst
+example.bib
+example.pdf
+example.tex
+readme.me
+.DS_Store

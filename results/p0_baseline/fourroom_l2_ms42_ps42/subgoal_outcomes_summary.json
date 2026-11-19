@@ -1,0 +1,17 @@
+{
+  "eps": 6.696619987487793,
+  "n_calls": 1100,
+  "n_calls_before_success_or_fail_end": 885,
+  "reach_rate_all_calls": 0.73,
+  "reach_rate_before_success": 0.6655367231638418,
+  "reach_rate_upper_plan_subgoals_before_success": 0.6825028968713789,
+  "reach_rate_successful_episodes": 0.771545827633379,
+  "reach_rate_failed_episodes": 0.16233766233766234,
+  "mean_d0": 63.32909388946275,
+  "mean_d_min": 12.64142392860294,
+  "branchB2_vs_baseline_label_agreement": {
+    "H5": 0.892,
+    "H10": 0.842,
+    "n": 500
+  }
+}

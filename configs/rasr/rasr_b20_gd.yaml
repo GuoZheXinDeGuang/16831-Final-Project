@@ -1,0 +1,6 @@
+mode: rasr
+lam: 0.5
+repair_lam: 10.0
+novelty_beta: 20.0
+repair_max_novelty: 0.4
+fallback: goal_direct
