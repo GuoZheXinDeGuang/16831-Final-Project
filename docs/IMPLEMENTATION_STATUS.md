@@ -248,6 +248,7 @@ https://github.com/GuoZheXinDeGuang/16831-Final-Project (`Project/` is its own g
 ## Website
 https://claude.ai/artifact/KjymaNKMpWzEbhYGzqz9ky (private until shared). Rebuild: `python3 scripts/site_notes_static.py &&
 python3 scripts/site_notes_results.py && python scripts/build_site.py` → `outputs/rasr/site/`.
+Chinese version: `docs/site_zh.json` (segment → translation; `python scripts/site_i18n.py missing out.json` lists untranslated text after a rebuild).
 Videos: `scripts/make_videos.py` (exact action replay, checked 0 px error), `scripts/make_branch_video.py`.
 
 ## Tests

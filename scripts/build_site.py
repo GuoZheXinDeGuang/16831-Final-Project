@@ -211,7 +211,7 @@ def main():
         vsel = p2d["val_selection"]
         droid_html += "<h3>Reranking (open loop)</h3>" + mnotes.get("droid_p2_html", "")
         droid_html += table(["Val (24 clips, planner seed 1)", "Fréchet fidelity"],
-                            [[("<b>" + k + "</b>" if k == vsel["selected"] else k).replace(":", ", λ = ").replace("mlp, λ = 0", "unmodified (λ = 0)"),
+                            [[("<b>" + k + "</b>" if k == vsel["selected"] else k).replace(":", ", λ = ").replace("mlp, λ = 0</b>", "unmodified (λ = 0)</b>") if k != "mlp:0" else "unmodified (λ = 0)",
                               pct(v, 1)] for k, v in vsel["val_frechet_skill"].items()])
         t = p2d["test"]
         ts = p2d["test_selected_tag"]
@@ -355,17 +355,13 @@ def main():
 <footer><p>{notes['footer']}</p></footer>
 </main>
 """
-    zh_p = ROOT / "docs/site_notes_zh.json"
-    if zh_p.exists():  # Chinese summary + per-section 中文要点 (tables and detailed text stay in English)
-        import re
-        zh = json.loads(zh_p.read_text())
-        body = body.replace('<section id="problem">',
-                            '<section id="zh" lang="zh-CN"><h2>中文摘要</h2><div class="zh">' + zh["abstract_html"] + '</div></section>\n<section id="problem">', 1)
-        body = body.replace('<a href="#problem">', '<a href="#zh">中文</a><a href="#problem">', 1)
-        for sid, (title, text) in zh["sections"].items():
-            body = re.sub(rf'(<section id="{sid}"[^>]*>\s*<h2>)(.*?)(</h2>)',
-                          lambda m: f'{m.group(1)}{m.group(2)}<span class="zh-t" lang="zh-CN">{title}</span>{m.group(3)}'
-                                    f'<div class="zh" lang="zh-CN"><p><b>中文要点：</b>{text}</p></div>', body, count=1, flags=re.S)
+    # ---- bilingual page: English body + full Chinese translation (scripts/site_i18n.py, docs/site_zh.json), one toggle
+    from site_i18n import translate
+    zh_body, zh_missing = translate(body)
+    if zh_missing:
+        print(f"warning: {len(zh_missing)} segments without Chinese translation (python scripts/site_i18n.py missing)")
+    body = (f'<button class="lang-btn" id="lang-btn" type="button" aria-label="Switch language / 切换语言">中文</button>\n'
+            f'<div class="lang-en" lang="en">{body}</div>\n<div class="lang-zh" lang="zh-CN">{zh_body}</div>\n' + LANG_JS)
     page = f"""<title>RASR Project Report</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -376,6 +372,36 @@ def main():
     (SITE / "index.html").write_text(page)
     print("wrote", SITE / "index.html", "assets:", len(copies))
 
+
+LANG_JS = """<script>
+(function () {
+  var h = document.documentElement, b = document.getElementById("lang-btn");
+  function set(l) {
+    h.setAttribute("data-lang", l); h.lang = l === "zh" ? "zh-CN" : "en";
+    b.textContent = l === "zh" ? "English" : "中文";
+    try { localStorage.setItem("rasr-lang", l); } catch (e) {}
+    if (window.renderMermaid) window.renderMermaid();
+  }
+  var l = "en";
+  try { l = localStorage.getItem("rasr-lang") || l; } catch (e) {}
+  if (/[?&]lang=zh/.test(location.search) || location.hash.indexOf("#zh") === 0) l = "zh";
+  if (/[?&]lang=en/.test(location.search)) l = "en";
+  b.addEventListener("click", function () { set(h.getAttribute("data-lang") === "zh" ? "en" : "zh"); });
+  set(l);
+})();
+</script>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";
+const dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+  (document.documentElement.getAttribute("data-theme") !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "neutral", securityLevel: "strict" });
+window.renderMermaid = () => {
+  const lang = document.documentElement.getAttribute("data-lang") === "zh" ? "zh" : "en";
+  const nodes = [...document.querySelectorAll(`.lang-${lang} pre.mermaid:not([data-processed])`)];
+  if (nodes.length) mermaid.run({ nodes }).catch(() => {});
+};
+window.renderMermaid();
+</script>"""
 
 CSS = """
 /* Layout: one reading column (~70ch) with figures that may break wider; data in a mono face. */
@@ -414,6 +440,7 @@ code,pre{font-family:var(--f-mono);font-size:13px;background:var(--code);border-
 code{padding:1px 5px}
 pre{padding:12px 14px;overflow-x:auto;line-height:1.5}
 pre.mermaid{background:var(--surface);border:1px solid var(--line);text-align:center}
+pre.mermaid svg{max-width:min(100%,600px)!important;height:auto}
 .tw{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
 table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
 th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
@@ -430,9 +457,15 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px;max-width:80ch}
 .note{font-size:14px;color:var(--muted)}
 .callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0}
 .callout p{margin:0}
-.zh{font-family:var(--f-body),"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;border:1px dashed var(--line);border-radius:6px;padding:10px 16px;margin:12px 0 18px;font-size:15px}
-.zh p{margin:6px 0}.zh ul{margin:6px 0;padding-left:20px}
-.zh-t{display:block;font:500 15px/1.4 var(--f-body),"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;color:var(--muted,inherit);opacity:.8;margin-top:4px}
+.lang-zh{display:none}
+html[data-lang=zh] .lang-zh{display:block}
+html[data-lang=zh] .lang-en{display:none}
+html[data-lang=zh] body{font-family:var(--f-body),"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif}
+.lang-btn{position:fixed;top:12px;right:16px;z-index:50;font:500 13px/1 var(--f-body),"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent)}
+.lang-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .tag{display:inline-block;font:500 11px/1 var(--f-mono);padding:4px 7px;border-radius:3px;border:1px solid var(--line);color:var(--muted);margin-right:6px}
 .good{color:var(--good)}.bad{color:var(--bad)}
 footer{padding-block:28px 48px;color:var(--muted);font-size:13px}

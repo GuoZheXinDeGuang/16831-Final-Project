@@ -21,7 +21,7 @@ unreachable.</li>
 <p>Research question: under the same evaluation tasks and comparable compute, does reachability + local repair beat plain
 H-JEPA, more frequent replanning, and full replanning on the same trigger?</p>
 """
-N["mermaid"] = """flowchart LR
+N["mermaid"] = """flowchart TB
   O[current frame o_t] --> E[frozen H-JEPA encoders]
   G[goal frame] --> E
   E --> L2[level-2 GD planner 800 candidates]
