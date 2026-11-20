@@ -241,6 +241,16 @@ def main():
          "subgoals reached in failed vs successful baseline episodes"),
         (notes["kpi_p23_value"], notes["kpi_p23_label"]),
     ]
+    if ant_cmp:
+        ac = {r["method"]: r for r in ant_cmp}
+        if "Ours−R" in ac:
+            kpis.append((f"{ac['Ours−R']['success_rate']:.0f}% vs {ac['B1']['success_rate']:.0f}%",
+                         f"AntMaze: repair without R vs baseline (+{ac['Ours−R']['vs_base_gained']} / −{ac['Ours−R']['vs_base_lost']}, "
+                         f"p = {ac['Ours−R']['mcnemar_p']:.2f}); with R {ac['Ours']['success_rate']:.0f}%"))
+    if droid and "p2_aligned" in droid:
+        pa = droid["p2_aligned"]["paired"]
+        kpis.append((f"{100 * pa['mean_diff']:+.1f} pts",
+                     f"DROID: Fréchet fidelity change from reachability reranking (time-aligned label, p = {pa['wilcoxon_p']:.2f}); no effect"))
     kpi_html = "".join(f'<div class="kpi"><div class="kv">{v}</div><div class="kl">{l}</div></div>' for v, l in kpis)
 
     body = f"""
@@ -333,6 +343,17 @@ def main():
 <footer><p>{notes['footer']}</p></footer>
 </main>
 """
+    zh_p = ROOT / "docs/site_notes_zh.json"
+    if zh_p.exists():  # Chinese summary + per-section 中文要点 (tables and detailed text stay in English)
+        import re
+        zh = json.loads(zh_p.read_text())
+        body = body.replace('<section id="problem">',
+                            '<section id="zh" lang="zh-CN"><h2>中文摘要</h2><div class="zh">' + zh["abstract_html"] + '</div></section>\n<section id="problem">', 1)
+        body = body.replace('<a href="#problem">', '<a href="#zh">中文</a><a href="#problem">', 1)
+        for sid, (title, text) in zh["sections"].items():
+            body = re.sub(rf'(<section id="{sid}"[^>]*>\s*<h2>)(.*?)(</h2>)',
+                          lambda m: f'{m.group(1)}{m.group(2)}<span class="zh-t" lang="zh-CN">{title}</span>{m.group(3)}'
+                                    f'<div class="zh" lang="zh-CN"><p><b>中文要点：</b>{text}</p></div>', body, count=1, flags=re.S)
     page = f"""<title>RASR Project Report</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -397,6 +418,9 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px;max-width:80ch}
 .note{font-size:14px;color:var(--muted)}
 .callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0}
 .callout p{margin:0}
+.zh{font-family:var(--f-body),"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;border:1px dashed var(--line);border-radius:6px;padding:10px 16px;margin:12px 0 18px;font-size:15px}
+.zh p{margin:6px 0}.zh ul{margin:6px 0;padding-left:20px}
+.zh-t{display:block;font:500 15px/1.4 var(--f-body),"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;color:var(--muted,inherit);opacity:.8;margin-top:4px}
 .tag{display:inline-block;font:500 11px/1 var(--f-mono);padding:4px 7px;border-radius:3px;border:1px solid var(--line);color:var(--muted);margin-right:6px}
 .good{color:var(--good)}.bad{color:var(--bad)}
 footer{padding-block:28px 48px;color:var(--muted);font-size:13px}
