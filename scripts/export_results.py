@@ -21,7 +21,7 @@ def main():
         rel = f.relative_to(SRC)
         if not f.is_file() or rel.parts[0] in SKIP_DIRS or f.stat().st_size > MAX_BYTES:
             continue
-        if f.name in NAMES or f.name.startswith(PREFIXES) or (rel.parts[0] == "figures" and f.suffix == ".png"):
+        if f.name in NAMES or f.name.startswith(PREFIXES) or ("figures" in rel.parts and f.suffix == ".png"):
             if f.name == "run_config.json" and not f.parent.name.startswith("shard_0"):
                 continue  # one run_config per run is enough
             out = DST / rel

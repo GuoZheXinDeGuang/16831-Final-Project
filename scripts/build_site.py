@@ -74,7 +74,10 @@ def main():
     for f in (R / "videos").glob("*"):
         copies[f.name] = f
     for name, src in {"ant_trajectories.png": R / "ant/p0_baseline/ant_l2_ms42_ps42/trajectories.png",
-                      "ant_calibration.png": R / "ant/p1_reachability/calibration_roc_pr_test.png"}.items():
+                      "ant_calibration.png": R / "ant/p1_reachability/calibration_roc_pr_test.png",
+                      "droid_clips.png": R / "droid/figures/droid_clips.png",
+                      "droid_labels.png": R / "droid/figures/droid_labels.png",
+                      "droid_paired.png": R / "droid/figures/droid_paired.png"}.items():
         if src.exists():
             copies[name] = src
     for name, src in copies.items():
@@ -191,6 +194,9 @@ def main():
     if droid:
         b, p1d, p2d = droid["baseline"], droid["p1"], droid["p2"]
         bs = b["per_model_seed"]
+        if (SITE / "assets/droid_clips.png").exists():
+            droid_html += fig("droid_clips.png", "Three of the 16 DROID test clips (real robot, left camera, frames every 1.2 s). The planner sees only the start "
+                              "and goal frames and must produce the 7.2 s action sequence; it is scored against the expert's recorded actions.", wide=True)
         droid_html += table(["Model seed", "Fréchet fidelity per planner seed 1 / 2 / 3", "mean", "ATE xyz (m)"],
                             [[ms, " / ".join(pct(x, 1) for x in v["frechet_skill_per_ps"]), pct(v["frechet_skill"], 1),
                               f"{v['ate_xyz']:.3f}"] for ms, v in bs.items()]
@@ -215,6 +221,9 @@ def main():
             [f"Reranked ({vsel['selected'].replace(':', ', λ = ')})", f"{100 * t[ts]['frechet_skill']['mean']:.2f} ± {100 * t[ts]['frechet_skill']['se']:.2f}%", f"{t[ts]['ate_xyz']['mean']:.3f}", f"{t[ts]['changed']} / {t[ts]['n']}"]])
         droid_html += (f'<p class="note">Paired over {pr["n"]} clip × seed runs: {pr["wins"]} better, {pr["losses"]} worse, {pr["ties"]} identical; '
                        f'mean difference {100 * pr["mean_diff"]:+.2f} points, Wilcoxon p = {pr["wilcoxon_p"]:.2f}.</p>') + mnotes.get("droid_after_html", "")
+        if (SITE / "assets/droid_labels.png").exists():
+            droid_html += fig("droid_labels.png", "Left: share of positive labels per planned subgoal time, original vs time-aligned label (160 train clips × 16 candidates). "
+                              "Right: under the original label, almost every positive matches the first expert frames, so it rewards subgoals that stay near the start.", wide=True)
         if "p2_aligned" in droid:
             pa1, pa2 = droid["p1_aligned"], droid["p2_aligned"]
             da, sa = pa1["dist"], pa1["mlp_selected"]
@@ -233,6 +242,9 @@ def main():
                 [f"Reranked, aligned label ({va['selected'].replace(':', ', λ = ')})", f"{100 * ta[tsa]['frechet_skill']['mean']:.2f} ± {100 * ta[tsa]['frechet_skill']['se']:.2f}%", f"{ta[tsa]['ate_xyz']['mean']:.3f}", f"{ta[tsa]['changed']} / {ta[tsa]['n']}"]])
             droid_html += (f'<p class="note">Paired over {pra["n"]} clip × seed runs: {pra["wins"]} better, {pra["losses"]} worse, {pra["ties"]} identical; '
                            f'mean difference {100 * pra["mean_diff"]:+.2f} points, Wilcoxon p = {pra["wilcoxon_p"]:.2f}.</p>') + mnotes.get("droid_aligned_after_html", "")
+            if (SITE / "assets/droid_paired.png").exists():
+                droid_html += fig("droid_paired.png", "Every test clip × planner seed (48 points per panel): Fréchet fidelity of the unmodified planner vs the reranked "
+                                  "planner. Points on the diagonal are unchanged; changed plans scatter on both sides about equally, for both labels.", wide=True)
 
     kpis = [
         (f"{p0['success_rate']:.0f}%", "H-JEPA baseline success, 50 official FourRoom tasks (paper: 81.3 ± 6.7%)"),

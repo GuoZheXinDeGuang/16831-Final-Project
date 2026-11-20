@@ -113,6 +113,7 @@ scripts/launch_droid_p2.sh          # original label: predictor x lam on val -> 
 python scripts/droid_rasr.py train --label aligned --out outputs/rasr/droid/p1_reachability_aligned
 python scripts/droid_rasr.py train-dist --label aligned --out outputs/rasr/droid/p1_reachability_aligned
 scripts/launch_droid_p2_aligned.sh  # time-aligned label (post-hoc follow-up), same protocol
+python scripts/droid_summary.py && python scripts/droid_figures.py   # summary.json + website figures (film strip needs test_clip_frames.npz, see script docstring)
 python scripts/droid_summary.py     # -> outputs/rasr/droid/summary.json
 ```
 
