@@ -25,14 +25,27 @@ METHODS = [
     ("Ours", "rasr_b20", "outputs/rasr/p2p3/test/rasr_b20"),
     ("Ours−R", "repair_noR", "outputs/rasr/p2p3/test/repair_noR"),
 ]
+T_ANT = "outputs/rasr/ant/p2p3/test/ps42"
+METHODS_ANT = [  # AntMaze (--env ant): planner predictor = val-selected distance logistic; B2 at seed 42 only
+    ("B1", "b1_baseline", "outputs/rasr/ant/p0_baseline/ant_l2_ms42_ps42"),
+    ("B2", "b2_freq_replan", "outputs/rasr/ant/p4_seeds/b2_freq_replan/seed42"),
+    ("B3", "rerank_l0.25_dist", f"{T_ANT}/rerank_l0.25_dist"),
+    ("B4", "full_replan", f"{T_ANT}/full_replan"),
+    ("Ours", "rasr_b20_dist", f"{T_ANT}/rasr_b20_dist"),
+    ("Ours−R", "repair_noR", f"{T_ANT}/repair_noR"),
+]
 SEEDS = (42, 43, 44)
+P4 = "outputs/rasr/p4_seeds"
 
 
 def run_dir(key, s42, seed):
-    return Path(s42) if seed == 42 else Path(f"outputs/rasr/p4_seeds/{key}/seed{seed}")
+    return Path(s42) if seed == 42 else Path(f"{P4}/{key}/seed{seed}")
 
 
 def main():
+    global METHODS, P4
+    if "--env" in sys.argv and sys.argv[sys.argv.index("--env") + 1] == "ant":
+        METHODS, P4 = METHODS_ANT, "outputs/rasr/ant/p4_seeds"
     base = {s: load_eps(run_dir("b1_baseline", METHODS[0][2], s)) for s in SEEDS}
     out = []
     for name, key, s42 in METHODS:
@@ -72,8 +85,8 @@ def main():
                               if any(r["recovery_rate"] is not None for r in summ) else None),
             "steps_to_success": float(np.mean([r["steps_to_success"] for r in summ])) if summ else None,
         })
-    Path("outputs/rasr/p4_seeds").mkdir(parents=True, exist_ok=True)
-    Path("outputs/rasr/p4_seeds/aggregate.json").write_text(json.dumps(out, indent=2))
+    Path(P4).mkdir(parents=True, exist_ok=True)
+    Path(f"{P4}/aggregate.json").write_text(json.dumps(out, indent=2))
     lines = ["| method | seed 42 | seed 43 | seed 44 | mean ± SE | pooled (150 eps) | +gained / −lost vs B1 | McNemar p | L2 calls/ep | recovery |",
              "|" + "---|" * 10]
     for r in out:
@@ -83,7 +96,7 @@ def main():
         lines.append(f"| {r['method']} | {ps[0]} | {ps[1]} | {ps[2]} | {ms} | {r['pooled']} | +{r['gained']} / −{r['lost']} | "
                      f"{r['mcnemar_p_pooled']:.2f} | {r['pred_calls_l2'] or 0:.0f} | {rec} |")
     md = "\n".join(lines) + "\n"
-    Path("outputs/rasr/p4_seeds/aggregate.md").write_text(md)
+    Path(f"{P4}/aggregate.md").write_text(md)
     print(md)
 
 

@@ -122,10 +122,9 @@ def main():
                         f"{r['triggers_per_ep']:.1f}", rec, f"{r['planning_wall_clock_s']:.0f}"])
         return out
 
-    seeds_html = ""
-    if agg:
+    def seed_table(ag, title, note):
         rows = []
-        for r in agg:
+        for r in ag:
             ps = ["—" if r["per_seed"].get(str(sd), r["per_seed"].get(sd)) is None else f"{r['per_seed'].get(str(sd), r['per_seed'].get(sd)):.0f}%"
                   for sd in (42, 43, 44)]
             ms = "—" if r["mean"] is None else f"<b>{r['mean']:.1f}</b>" + (f" ± {r['se']:.1f}" if r["se"] is not None else "")
@@ -133,10 +132,14 @@ def main():
             rows.append([notes["method_names"].get(r["method"], r["method"]), *ps, ms, r["pooled"],
                          f"+{r['gained']} / −{r['lost']} <span class=ci>p={r['mcnemar_p_pooled']:.2f}</span>",
                          f"{r['pred_calls_l2'] or 0:.0f}", rec])
-        seeds_html = ("<h3>Three planner seeds (42, 43, 44; model seed 42; same 50 tasks)</h3>"
-                      + table(["Method", "seed 42", "seed 43", "seed 44", "mean ± SE (%)", "pooled", "Δ vs B1 (pooled McNemar)",
-                               "L2 calls / ep", "recovery"], rows)
-                      + f'<p class="note">{notes.get("seeds_note", "")}</p>')
+        return (f"<h3>{title}</h3>"
+                + table(["Method", "seed 42", "seed 43", "seed 44", "mean ± SE (%)", "pooled", "Δ vs B1 (pooled McNemar)",
+                         "L2 calls / ep", "recovery"], rows)
+                + f'<p class="note">{note}</p>')
+
+    seeds_html = seed_table(agg, "Three planner seeds (42, 43, 44; model seed 42; same 50 tasks)", notes.get("seeds_note", "")) if agg else ""
+    ant_agg_p = R / "ant/p4_seeds/aggregate.json"
+    ant_agg = json.loads(ant_agg_p.read_text()) if ant_agg_p.exists() else None
     shift_html = ""
     if shift:
         a, b = shift["selected_Hall"], shift["non_selected_Hall"]
@@ -188,7 +191,10 @@ def main():
     if ant_cmp:
         ant_html += "<h3>Selection and repair (test: 50 official tasks, planner seed 42)</h3>" + mnotes.get("ant_p23_method_html", "")
         ant_html += table(mhead, method_rows(ant_cmp))
-        ant_html += f'<p class="note">{mnotes.get("ant_table_note", "")}</p>' + mnotes.get("ant_results_html", "")
+        ant_html += f'<p class="note">{mnotes.get("ant_table_note", "")}</p>'
+        if ant_agg:
+            ant_html += seed_table(ant_agg, "AntMaze, three planner seeds (42, 43, 44; model seed 42; same 50 tasks)", mnotes.get("ant_seeds_note", ""))
+        ant_html += mnotes.get("ant_results_html", "")
 
     droid_html = ""
     if droid:
@@ -253,7 +259,12 @@ def main():
          "subgoals reached in failed vs successful baseline episodes"),
         (notes["kpi_p23_value"], notes["kpi_p23_label"]),
     ]
-    if ant_cmp:
+    if ant_agg:
+        aa = {r["method"]: r for r in ant_agg}
+        kpis.append((f"{aa['Ours−R']['mean']:.0f}% vs {aa['B1']['mean']:.0f}%",
+                     f"AntMaze, 3 seeds: repair without R vs baseline (+{aa['Ours−R']['gained']} / −{aa['Ours−R']['lost']} of 150, "
+                     f"p &lt; 0.001); with R {aa['Ours']['mean']:.0f}%"))
+    elif ant_cmp:
         ac = {r["method"]: r for r in ant_cmp}
         if "Ours−R" in ac:
             kpis.append((f"{ac['Ours−R']['success_rate']:.0f}% vs {ac['B1']['success_rate']:.0f}%",

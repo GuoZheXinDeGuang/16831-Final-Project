@@ -1,0 +1,146 @@
+[
+  {
+    "method": "B1",
+    "per_seed": {
+      "42": 36.0,
+      "43": 42.0,
+      "44": 36.0
+    },
+    "n_seeds": 3,
+    "mean": 38.0,
+    "se": 2.0,
+    "pooled": "57/150",
+    "pooled_wilson95": [
+      30.623600246985916,
+      45.975707092511335
+    ],
+    "gained": 0,
+    "lost": 0,
+    "mcnemar_p_pooled": 1.0,
+    "pred_calls_l2": 6110.3533333333335,
+    "extra_toplevel_solves_per_ep": 0.0,
+    "triggers_per_ep": 0.0,
+    "recovery_rate": null,
+    "steps_to_success": 246.06349206349205
+  },
+  {
+    "method": "B2",
+    "per_seed": {
+      "42": 44.0,
+      "43": null,
+      "44": null
+    },
+    "n_seeds": 1,
+    "mean": 44.0,
+    "se": null,
+    "pooled": "22/50",
+    "pooled_wilson95": [
+      31.16198721023535,
+      57.69421319985648
+    ],
+    "gained": 9,
+    "lost": 5,
+    "mcnemar_p_pooled": 0.4239501953125,
+    "pred_calls_l2": 12149.18,
+    "extra_toplevel_solves_per_ep": 0.0,
+    "triggers_per_ep": 0.0,
+    "recovery_rate": null,
+    "steps_to_success": 245.6818181818182
+  },
+  {
+    "method": "B3",
+    "per_seed": {
+      "42": 38.0,
+      "43": 30.0,
+      "44": 38.0
+    },
+    "n_seeds": 3,
+    "mean": 35.333333333333336,
+    "se": 2.666666666666667,
+    "pooled": "53/150",
+    "pooled_wilson95": [
+      28.137142404545955,
+      43.26201101039513
+    ],
+    "gained": 14,
+    "lost": 18,
+    "mcnemar_p_pooled": 0.5966148958541453,
+    "pred_calls_l2": 6249.2266666666665,
+    "extra_toplevel_solves_per_ep": 0.0,
+    "triggers_per_ep": 0.0,
+    "recovery_rate": null,
+    "steps_to_success": 267.940350877193
+  },
+  {
+    "method": "B4",
+    "per_seed": {
+      "42": 48.0,
+      "43": 52.0,
+      "44": 44.0
+    },
+    "n_seeds": 3,
+    "mean": 48.0,
+    "se": 2.3094010767585034,
+    "pooled": "72/150",
+    "pooled_wilson95": [
+      40.15497821637989,
+      55.944906340202984
+    ],
+    "gained": 23,
+    "lost": 8,
+    "mcnemar_p_pooled": 0.010673840530216694,
+    "pred_calls_l2": 7239.400000000001,
+    "extra_toplevel_solves_per_ep": 5.1866666666666665,
+    "triggers_per_ep": 6.039999999999999,
+    "recovery_rate": 0.26672426400507865,
+    "steps_to_success": 241.25903263403265
+  },
+  {
+    "method": "Ours",
+    "per_seed": {
+      "42": 24.0,
+      "43": 20.0,
+      "44": 36.0
+    },
+    "n_seeds": 3,
+    "mean": 26.666666666666668,
+    "se": 4.8074017006186525,
+    "pooled": "40/150",
+    "pooled_wilson95": [
+      20.237055731073237,
+      34.2615974290603
+    ],
+    "gained": 12,
+    "lost": 29,
+    "mcnemar_p_pooled": 0.011507789735333063,
+    "pred_calls_l2": 8701.426666666666,
+    "extra_toplevel_solves_per_ep": 13.926666666666668,
+    "triggers_per_ep": 5.286666666666666,
+    "recovery_rate": 0.18571680384548173,
+    "steps_to_success": 291.52592592592595
+  },
+  {
+    "method": "Ours\u2212R",
+    "per_seed": {
+      "42": 54.0,
+      "43": 56.0,
+      "44": 52.0
+    },
+    "n_seeds": 3,
+    "mean": 54.0,
+    "se": 1.1547005383792517,
+    "pooled": "81/150",
+    "pooled_wilson95": [
+      46.023676745464286,
+      61.77655414136997
+    ],
+    "gained": 33,
+    "lost": 9,
+    "mcnemar_p_pooled": 0.00027153923429068527,
+    "pred_calls_l2": 9089.913333333334,
+    "extra_toplevel_solves_per_ep": 15.040000000000001,
+    "triggers_per_ep": 5.726666666666667,
+    "recovery_rate": 0.3069132577896727,
+    "steps_to_success": 227.47496947496947
+  }
+]

@@ -16,7 +16,7 @@ N["abstract"] = (
     f"reachability ({AG['Ours−R']['mean']:.1f}%, not significant). Diagnosing why, we find the baseline's failures are not unreachable "
     "subgoals. The level-2 planner keeps choosing reachable subgoals that make no progress, a corner attractor that "
     "the world model scores as close to the goal. On Visual AntMaze, where failures are stalls, the repair without the reachability "
-    "term is the only significant gain in the project (54% vs 36%, p = 0.01), while adding the reachability term hurts (24%). "
+    "term is the only significant gain in the project (54.0% vs 38.0% over three planner seeds, +33 / −9 of 150 episodes, p &lt; 0.001), while adding the reachability term hurts (26.7%, p = 0.01). "
     "On DROID (offline, open loop) reachability-aware selection has no effect with either label.")
 N["kpi_p23_value"] = f"{AG['Ours']['mean']:.1f}% vs {AG['B1']['mean']:.1f}%"
 N["kpi_p23_label"] = "RASR vs baseline success, mean over 3 planner seeds (150 episodes each); no significant change"
@@ -98,8 +98,8 @@ unreachable (R ≈ 0.02).</li>
 <em>which</em> subgoal makes progress. The one consistent positive signal (88.0% vs 85.3% over three seeds, not significant)
 comes from exploration pressure, the visited-region term without R, not from reachability. The predictor itself transfers
 reasonably to the candidates it scores (AUROC 0.85 on non-selected candidates), so the null result is not a predictor failure.</li>
-<li><b>AntMaze confirms the pattern with a significant result.</b> Repair without R: 54% vs 36% (+10 / −1, p = 0.01); full replan
-on the same trigger 48%. With R the repair drops to 24%. The val-selected predictor is close to a distance prior, so the R term pulls repaired
+<li><b>AntMaze confirms the pattern with a significant result.</b> Over three planner seeds, repair without R: 54.0% vs 38.0% (+33 / −9 of 150, p &lt; 0.001), better than the baseline at every seed; full replan
+on the same trigger 48.0% (p = 0.01). With R the repair drops to 26.7%, below the baseline (p = 0.01). The val-selected predictor is close to a distance prior, so the R term pulls repaired
 subgoals back towards the stuck state and cancels the exploration term.</li>
 <li><b>DROID (offline):</b> no effect with either the original or a time-aligned label (+0.5 points, p = 0.78). The original
 label mostly rewarded not moving.</li>

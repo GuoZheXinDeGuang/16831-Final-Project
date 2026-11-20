@@ -1,6 +1,6 @@
 # RASR Implementation Status
 
-_Last updated: 2026-11-19 14:10 — FourRoom P0–P4 complete; AntMaze + DROID extension IN PROGRESS; final deliverable = website_
+_Last updated: 2026-11-20 16:20 — FourRoom P0–P4 complete; AntMaze P0–P4 (3 seeds) complete; DROID offline check complete; final deliverable = website_
 
 ## Repository state
 - Upstream `H-JEPA/` = clone of https://github.com/kevinghst/H-JEPA @ `97054ec`, **no upstream file modified**
@@ -241,6 +241,12 @@ fidelity is reported, never closed-loop success.
   selected R 0.43 → 0.89 at ×1.01 cost (61 % of selections changed) → picks subgoals near the current latent; in repair this
   cancels the novelty term. `full_replan` / `repair_noR` were launched by hand: the chained launcher hit a bash syntax error
   because `launch_ant_p2p3.sh` was edited while the chain was running (no partial outputs). EGL `__del__` tracebacks at exit are harmless.
+- **AntMaze P4 seeds (2026-11-20; `scripts/run_ant_seed_job.sh`, queue `outputs/rasr/ant/p4_jobs.txt`, xargs -P 12;
+  `python scripts/aggregate_seeds.py --env ant` → `outputs/rasr/ant/p4_seeds/aggregate.{json,md}`):** planner seeds 43/44
+  (+ B2 at seed 42). B1 seed 42 re-run on task 0 is bit-identical. Mean ± SE over 3 seeds, pooled 150 eps, McNemar vs B1:
+  B1 38.0 ± 2.0; B2 44 (seed 42 only, p 0.42); B3 35.3 ± 2.7 (p 0.60); B4 48.0 ± 2.3 (+23/−8, p 0.01);
+  Ours 26.7 ± 4.8 (+12/−29, p 0.01); **Ours−R 54.0 ± 1.2 (+33/−9, p 0.0003)**, ahead at every seed. Ours−R vs B4 +20/−11 (p 0.15),
+  vs Ours +48/−7. No OOM.
 
 ## Code repository
 https://github.com/GuoZheXinDeGuang/16831-Final-Project (`Project/` is its own git repo; see README.md, docs/RUN.md).
