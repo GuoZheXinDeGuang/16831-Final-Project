@@ -15,14 +15,17 @@ N["abstract"] = (
     f"{AG['Ours']['mean']:.1f}% against {AG['B1']['mean']:.1f}% for the baseline; the best variant is the repair without "
     f"reachability ({AG['Ours−R']['mean']:.1f}%, not significant). Diagnosing why, we find the baseline's failures are not unreachable "
     "subgoals. The level-2 planner keeps choosing reachable subgoals that make no progress, a corner attractor that "
-    "the world model scores as close to the goal.")
+    "the world model scores as close to the goal. On Visual AntMaze, where failures are stalls, the repair without the reachability "
+    "term is the only significant gain in the project (54% vs 36%, p = 0.01), while adding the reachability term hurts (24%). "
+    "On DROID (offline, open loop) reachability-aware selection has no effect with either label.")
 N["kpi_p23_value"] = f"{AG['Ours']['mean']:.1f}% vs {AG['B1']['mean']:.1f}%"
 N["kpi_p23_label"] = "RASR vs baseline success, mean over 3 planner seeds (150 episodes each); no significant change"
 N["method_names"] = {
     "B1": "B1 · H-JEPA baseline", "B2": "B2 · replan every 5 steps", "B3": "B3 · reachability rerank (λ = 0.25)",
     "B4": "B4 · full replan on trigger", "Ours": "Ours · rerank + repair (R + novelty)", "Ours−R": "Ablation · repair without R",
     "B3 λ=0.25": "B3 · λ = 0.25", "B3 λ=0.5": "B3 · λ = 0.5", "B3 λ=1.0": "B3 · λ = 1.0",
-    "Ours β=5": "Ours · β = 5", "Ours β=20": "Ours · β = 20 (selected)"}
+    "Ours β=5": "Ours · β = 5", "Ours β=20": "Ours · β = 20 (selected)",
+    "B3-mlp": "B3 with MLP predictor (ablation)", "Ours-mlp": "Ours with MLP predictor (ablation)"}
 N["p23_method_html"] = """
 <p><b>Candidate pool (P2).</b> After the unchanged level-2 GD solve, all 800 optimised candidates are rolled out once
 (one extra batched forward). Each candidate gives a progress cost (the planner's own objective) and a first predicted
@@ -95,6 +98,11 @@ unreachable (R ≈ 0.02).</li>
 <em>which</em> subgoal makes progress. The one consistent positive signal (88.0% vs 85.3% over three seeds, not significant)
 comes from exploration pressure, the visited-region term without R, not from reachability. The predictor itself transfers
 reasonably to the candidates it scores (AUROC 0.85 on non-selected candidates), so the null result is not a predictor failure.</li>
+<li><b>AntMaze confirms the pattern with a significant result.</b> Repair without R: 54% vs 36% (+10 / −1, p = 0.01); full replan
+on the same trigger 48%. With R the repair drops to 24%. The val-selected predictor is close to a distance prior, so the R term pulls repaired
+subgoals back towards the stuck state and cancels the exploration term.</li>
+<li><b>DROID (offline):</b> no effect with either the original or a time-aligned label (+0.5 points, p = 0.78). The original
+label mostly rewarded not moving.</li>
 </ol>
 """
 N["limits_html"] = """

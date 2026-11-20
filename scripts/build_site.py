@@ -215,6 +215,24 @@ def main():
             [f"Reranked ({vsel['selected'].replace(':', ', λ = ')})", f"{100 * t[ts]['frechet_skill']['mean']:.2f} ± {100 * t[ts]['frechet_skill']['se']:.2f}%", f"{t[ts]['ate_xyz']['mean']:.3f}", f"{t[ts]['changed']} / {t[ts]['n']}"]])
         droid_html += (f'<p class="note">Paired over {pr["n"]} clip × seed runs: {pr["wins"]} better, {pr["losses"]} worse, {pr["ties"]} identical; '
                        f'mean difference {100 * pr["mean_diff"]:+.2f} points, Wilcoxon p = {pr["wilcoxon_p"]:.2f}.</p>') + mnotes.get("droid_after_html", "")
+        if "p2_aligned" in droid:
+            pa1, pa2 = droid["p1_aligned"], droid["p2_aligned"]
+            da, sa = pa1["dist"], pa1["mlp_selected"]
+            droid_html += "<h3>Follow-up: time-aligned label</h3>" + mnotes.get("droid_aligned_html", "")
+            droid_html += table(["Model (aligned label)", "val AUROC", "test AUROC", "test Brier", "test ECE"], [
+                ["Distance logistic", f"{da['val']['auroc']:.3f}", f"{da['test']['auroc']:.3f}", f"{da['test']['brier']:.3f}", f"{da['test']['ece']:.3f}"],
+                ["MLP + temperature (best val of 3 seeds)", f"{sa['val']['auroc']:.3f}", f"{sa['test']['auroc']:.3f}", f"{sa['test']['brier']:.3f}", f"{sa['test']['ece']:.3f}"],
+                ["Distance to current state only", "", f"{sa['test']['auroc_dist_only']:.3f}", "", ""]])
+            va = pa2["val_selection"]
+            droid_html += table(["Val (24 clips, planner seed 1)", "Fréchet fidelity"],
+                                [[("<b>" + k + "</b>" if k == va["selected"] else k).replace(":", ", λ = ").replace("unmodified, λ = 0", "unmodified (λ = 0)"),
+                                  pct(v, 1)] for k, v in va["val_frechet_skill"].items()])
+            ta, tsa, pra = pa2["test"], pa2["test_selected_tag"], pa2["paired"]
+            droid_html += table(["Test (16 clips × planner seeds 1/2/3)", "Fréchet fidelity, mean ± SE over seeds", "ATE xyz (m)", "changed selections"], [
+                ["Unmodified H-JEPA (λ = 0)", f"{100 * ta['lam0']['frechet_skill']['mean']:.2f} ± {100 * ta['lam0']['frechet_skill']['se']:.2f}%", f"{ta['lam0']['ate_xyz']['mean']:.3f}", f"0 / {ta['lam0']['n']}"],
+                [f"Reranked, aligned label ({va['selected'].replace(':', ', λ = ')})", f"{100 * ta[tsa]['frechet_skill']['mean']:.2f} ± {100 * ta[tsa]['frechet_skill']['se']:.2f}%", f"{ta[tsa]['ate_xyz']['mean']:.3f}", f"{ta[tsa]['changed']} / {ta[tsa]['n']}"]])
+            droid_html += (f'<p class="note">Paired over {pra["n"]} clip × seed runs: {pra["wins"]} better, {pra["losses"]} worse, {pra["ties"]} identical; '
+                           f'mean difference {100 * pra["mean_diff"]:+.2f} points, Wilcoxon p = {pra["wilcoxon_p"]:.2f}.</p>') + mnotes.get("droid_aligned_after_html", "")
 
     kpis = [
         (f"{p0['success_rate']:.0f}%", "H-JEPA baseline success, 50 official FourRoom tasks (paper: 81.3 ± 6.7%)"),

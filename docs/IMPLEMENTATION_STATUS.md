@@ -223,6 +223,28 @@ fidelity is reported, never closed-loop success.
 - P2 (`scripts/launch_droid_p2.sh`): val (24 clips, ps 1) selects predictor ∈ {mlp, dist} × lam ∈ {0.25, 0.5, 1.0} or lam 0
   by Fréchet skill → `outputs/rasr/droid/p2/val_selection.json`; then lam 0 and the selection on test, planner seeds 1/2/3.
 
+- **Why no effect (post-hoc analysis, on the website):** predictor ranks candidates within a clip well (Spearman 0.74), but
+  90 % of positive labels match expert frames 1–3, i.e. the "any earlier frame" label rewards plans that barely move; reranking
+  buys +0.22 mean R for +8 % progress cost, uncorrelated with Fréchet change (Spearman 0.07). Eval pool = 4 level-2 candidates.
+- **Follow-up (post-hoc, requested by the user): time-aligned label** (`--label aligned`: subgoal j must match an expert
+  frame within 3j ± 3 frames; window fixed a priori). Positives 13 % (was 25 %); distance-only AUROC 0.892 (was 0.975);
+  distance logistic test AUROC 0.926, MLP 0.85–0.87. P2: `scripts/launch_droid_p2_aligned.sh` (same val protocol, lam 0 reused;
+  GPU-memory gate because AntMaze uses ~19 GB; first launch OOM'd at startup, nothing written).
+  Result: val-selected dist λ 0.25; test 38.85 ± 0.53 vs 38.31 ± 0.86 (19/48 selections changed), paired 8 / 8 / 32,
+  Wilcoxon p = 0.78 → still no effect.
+- AntMaze predictor: distance logistic beats the MLP on val (0.869 vs 0.829) → val-selected; `scripts/fit_dist_predictor.py`
+  refits it exactly (0 diff to saved predictions) → `dist_model.pt` (`DistLogRegReachability`, differentiable). P2/P3 test runs
+  for both predictors (`*_dist` = main, MLP = ablation).
+- **AntMaze P2/P3 test (planner seed 42, 50 official tasks; `outputs/rasr/ant/p2p3/compare_test.json`):**
+  B1 36 %, B3 38 % (+4/−3, p 1.0), B4 48 % (+7/−1, p 0.07), Ours 24 % (+2/−8, p 0.11), **Ours−R 54 % (+10/−1, p 0.01)**;
+  MLP ablation: B3 34 %, Ours 38 %. Ours vs Ours−R +1/−16 (p < 0.001). Diagnosis: the distance-logistic R raises median
+  selected R 0.43 → 0.89 at ×1.01 cost (61 % of selections changed) → picks subgoals near the current latent; in repair this
+  cancels the novelty term. `full_replan` / `repair_noR` were launched by hand: the chained launcher hit a bash syntax error
+  because `launch_ant_p2p3.sh` was edited while the chain was running (no partial outputs). EGL `__del__` tracebacks at exit are harmless.
+
+## Code repository
+https://github.com/GuoZheXinDeGuang/16831-Final-Project (`Project/` is its own git repo; see README.md, docs/RUN.md).
+
 ## Website
 https://claude.ai/artifact/KjymaNKMpWzEbhYGzqz9ky (private until shared). Rebuild: `python3 scripts/site_notes_static.py &&
 python3 scripts/site_notes_results.py && python scripts/build_site.py` → `outputs/rasr/site/`.

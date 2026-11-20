@@ -22,19 +22,22 @@ Project website (all figures, tables, videos): https://claude.ai/artifact/KjymaN
 | H-JEPA 2-level baseline, ours | 86.0% (seed 42); 85.3 ± 1.8% over 3 planner seeds | 36.0% (18/50) | Fréchet fidelity 38.46 ± 0.89% |
 | paper | 81.3 ± 6.7% | 39.3 ± 3.7% | 38.42 ± 0.94% |
 | best reachability predictor, test AUROC | MLP 0.903 (ECE 0.022) | distance logistic 0.853 (MLP 0.777) | distance logistic 0.976 (MLP 0.826) |
-| reranking (P2) vs baseline | 84.7% vs 85.3% (3 seeds) | running | 37.98% vs 38.31%, p = 0.71 |
-| rerank + repair (Ours) | 84.7% vs 85.3% | running | — (no closed loop) |
-| repair without R (ablation) | 88.0% vs 85.3%, p = 0.22 | running | — |
+| reranking (P2) vs baseline | 84.7% vs 85.3% (3 seeds) | 38% vs 36%, p = 1.0 | 37.98% vs 38.31%, p = 0.71; time-aligned label 38.85%, p = 0.78 |
+| full replan on trigger (B4) | — | 48% (+7 / −1, p = 0.07) | — |
+| rerank + repair (Ours) | 84.7% vs 85.3% | 24% (+2 / −8, p = 0.11) | — (no closed loop) |
+| repair without R (ablation) | 88.0% vs 85.3%, p = 0.22 | **54% (+10 / −1, p = 0.01)** | — |
 
-Main findings so far:
+Main findings (AntMaze: one planner seed, 50 official tasks, exact McNemar vs baseline):
 
 - **FourRoom:** reachability is predictable, but no method changes success significantly. Baseline failures are a
   level-2 "corner attractor" (reachable subgoals that make no progress), not unexecutable subgoals.
-- **AntMaze:** failures look executability-limited (the ant stalls against walls). The learned MLP does not beat the
-  distance-logistic reference on val, so the planner uses the val-selected distance predictor (MLP kept as an ablation).
+- **AntMaze:** failures are stalls (the ant gets stuck against walls). The repair *without* the reachability term is the
+  only significant gain in the project (54% vs 36%). Adding R hurts (24%): the val-selected predictor is close to a distance
+  prior, so it pulls repaired subgoals back towards the stuck state and cancels the exploration term. The MLP predictor
+  (ablation) is less extreme and lands at 38%.
 - **DROID:** no effect. The original offline label rewards "the subgoal stays near the start" (90% of positives match
   the first 0.6 s of the expert video), so reranking picks conservative plans that the Fréchet metric does not reward.
-  A time-aligned label is evaluated as a post-hoc follow-up.
+  A post-hoc time-aligned label removes that shortcut but still gives no significant change (+0.5 points, p = 0.78).
 
 Full numbers: `results/` (exported summaries) and `docs/IMPLEMENTATION_STATUS.md` (running log of every decision).
 

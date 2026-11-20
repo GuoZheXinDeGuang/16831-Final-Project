@@ -1,0 +1,10 @@
+{
+ "n": 24,
+ "frechet_skill_mean": 0.31513718974831784,
+ "ate_xyz_mean": 0.1614643291104585,
+ "n_changed": 12,
+ "lam": 0.5,
+ "model_seed": 1,
+ "planner_seed": 1,
+ "split": "val"
+}

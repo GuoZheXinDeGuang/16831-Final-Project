@@ -1,0 +1,322 @@
+[
+  {
+    "method": "B1",
+    "run": "outputs/rasr/ant/p0_baseline/ant_l2_ms42_ps42",
+    "n": 50,
+    "success": 18,
+    "success_rate": 36.0,
+    "wilson95": [
+      24.138562967182875,
+      49.85923798969805
+    ],
+    "vs_base_lost": 0,
+    "vs_base_gained": 0,
+    "mcnemar_p": 1.0,
+    "gained_tasks": [],
+    "lost_tasks": [],
+    "steps_to_success": 251.11111111111111,
+    "planning_calls": 36.0,
+    "pred_calls_l1": 3565.62,
+    "pred_calls_l2": 6078.14,
+    "pred_rows_total_M": 1.2697835,
+    "planning_wall_clock_s": 234.7879945965181,
+    "triggers_per_ep": 0.0,
+    "trigger_kinds": {},
+    "repair_calls_per_ep": 0.0,
+    "repair_kinds": {},
+    "fallback_calls_per_ep": 0.0,
+    "extra_toplevel_solves_per_ep": 0.0,
+    "rerank_changed_frac": 0.0,
+    "recovery_rate": null,
+    "n_triggers": 0,
+    "episodes_with_trigger": 0
+  },
+  {
+    "method": "B3",
+    "run": "outputs/rasr/ant/p2p3/test/ps42/rerank_l0.25_dist",
+    "n": 50,
+    "success": 19,
+    "success_rate": 38.0,
+    "wilson95": [
+      25.86259584257722,
+      51.849804977606425
+    ],
+    "vs_base_lost": 3,
+    "vs_base_gained": 4,
+    "mcnemar_p": 1.0,
+    "gained_tasks": [
+      29,
+      40,
+      45,
+      48
+    ],
+    "lost_tasks": [
+      9,
+      19,
+      31
+    ],
+    "steps_to_success": 273.8421052631579,
+    "planning_calls": 36.0,
+    "pred_calls_l1": 3772.14,
+    "pred_calls_l2": 6196.12,
+    "pred_rows_total_M": 1.2985425,
+    "planning_wall_clock_s": 312.5296283046529,
+    "triggers_per_ep": 0.0,
+    "trigger_kinds": {},
+    "repair_calls_per_ep": 0.0,
+    "repair_kinds": {},
+    "fallback_calls_per_ep": 0.0,
+    "extra_toplevel_solves_per_ep": 0.0,
+    "rerank_changed_frac": 0.5348387096774193,
+    "recovery_rate": null,
+    "n_triggers": 0,
+    "episodes_with_trigger": 0
+  },
+  {
+    "method": "B4",
+    "run": "outputs/rasr/ant/p2p3/test/ps42/full_replan",
+    "n": 50,
+    "success": 24,
+    "success_rate": 48.0,
+    "wilson95": [
+      34.79691239550571,
+      61.48848774119157
+    ],
+    "vs_base_lost": 1,
+    "vs_base_gained": 7,
+    "mcnemar_p": 0.0703125,
+    "gained_tasks": [
+      4,
+      23,
+      29,
+      30,
+      40,
+      45,
+      47
+    ],
+    "lost_tasks": [
+      26
+    ],
+    "steps_to_success": 254.875,
+    "planning_calls": 36.0,
+    "pred_calls_l1": 3633.92,
+    "pred_calls_l2": 7314.72,
+    "pred_rows_total_M": 1.51348574,
+    "planning_wall_clock_s": 154.2542600510246,
+    "triggers_per_ep": 6.16,
+    "trigger_kinds": {
+      "goal_stall": 101,
+      "subgoal_miss": 207
+    },
+    "repair_calls_per_ep": 5.28,
+    "repair_kinds": {
+      "full_replan": 264
+    },
+    "fallback_calls_per_ep": 5.28,
+    "extra_toplevel_solves_per_ep": 5.28,
+    "rerank_changed_frac": 0.0,
+    "recovery_rate": 0.2987012987012987,
+    "n_triggers": 308,
+    "episodes_with_trigger": 50
+  },
+  {
+    "method": "Ours",
+    "run": "outputs/rasr/ant/p2p3/test/ps42/rasr_b20_dist",
+    "n": 50,
+    "success": 12,
+    "success_rate": 24.0,
+    "wilson95": [
+      14.297252401872207,
+      37.41294937519237
+    ],
+    "vs_base_lost": 8,
+    "vs_base_gained": 2,
+    "mcnemar_p": 0.109375,
+    "gained_tasks": [
+      1,
+      40
+    ],
+    "lost_tasks": [
+      5,
+      10,
+      13,
+      16,
+      19,
+      26,
+      31,
+      46
+    ],
+    "steps_to_success": 294.1666666666667,
+    "planning_calls": 36.0,
+    "pred_calls_l1": 3705.36,
+    "pred_calls_l2": 8624.02,
+    "pred_rows_total_M": 1.768523,
+    "planning_wall_clock_s": 364.8657447271142,
+    "triggers_per_ep": 5.38,
+    "trigger_kinds": {
+      "goal_stall": 178,
+      "subgoal_miss": 91
+    },
+    "repair_calls_per_ep": 13.88,
+    "repair_kinds": {
+      "subgoal_repair": 679,
+      "subgoal_repair+fallback_full_replan": 15
+    },
+    "fallback_calls_per_ep": 0.3,
+    "extra_toplevel_solves_per_ep": 14.18,
+    "rerank_changed_frac": 0.6425806451612903,
+    "recovery_rate": 0.17100371747211895,
+    "n_triggers": 269,
+    "episodes_with_trigger": 50
+  },
+  {
+    "method": "Ours\u2212R",
+    "run": "outputs/rasr/ant/p2p3/test/ps42/repair_noR",
+    "n": 50,
+    "success": 27,
+    "success_rate": 54.0,
+    "wilson95": [
+      40.398634328388084,
+      67.03056539821738
+    ],
+    "vs_base_lost": 1,
+    "vs_base_gained": 10,
+    "mcnemar_p": 0.01171875,
+    "gained_tasks": [
+      1,
+      6,
+      17,
+      23,
+      29,
+      30,
+      38,
+      40,
+      41,
+      45
+    ],
+    "lost_tasks": [
+      0
+    ],
+    "steps_to_success": 231.66666666666666,
+    "planning_calls": 36.0,
+    "pred_calls_l1": 3404.8,
+    "pred_calls_l2": 8970.82,
+    "pred_rows_total_M": 1.8299113,
+    "planning_wall_clock_s": 170.06505930221175,
+    "triggers_per_ep": 5.56,
+    "trigger_kinds": {
+      "goal_stall": 80,
+      "subgoal_miss": 198
+    },
+    "repair_calls_per_ep": 14.62,
+    "repair_kinds": {
+      "subgoal_repair": 731
+    },
+    "fallback_calls_per_ep": 0.0,
+    "extra_toplevel_solves_per_ep": 14.62,
+    "rerank_changed_frac": 0.0,
+    "recovery_rate": 0.29136690647482016,
+    "n_triggers": 278,
+    "episodes_with_trigger": 50
+  },
+  {
+    "method": "B3-mlp",
+    "run": "outputs/rasr/ant/p2p3/test/ps42/rerank_l0.25",
+    "n": 50,
+    "success": 17,
+    "success_rate": 34.0,
+    "wilson95": [
+      22.43676963506106,
+      47.846431458517145
+    ],
+    "vs_base_lost": 7,
+    "vs_base_gained": 6,
+    "mcnemar_p": 1.0,
+    "gained_tasks": [
+      23,
+      28,
+      29,
+      40,
+      47,
+      48
+    ],
+    "lost_tasks": [
+      2,
+      12,
+      19,
+      26,
+      31,
+      32,
+      33
+    ],
+    "steps_to_success": 258.29411764705884,
+    "planning_calls": 36.0,
+    "pred_calls_l1": 3729.32,
+    "pred_calls_l2": 6347.54,
+    "pred_rows_total_M": 1.327756,
+    "planning_wall_clock_s": 248.31034852989484,
+    "triggers_per_ep": 0.0,
+    "trigger_kinds": {},
+    "repair_calls_per_ep": 0.0,
+    "repair_kinds": {},
+    "fallback_calls_per_ep": 0.0,
+    "extra_toplevel_solves_per_ep": 0.0,
+    "rerank_changed_frac": 0.3690322580645161,
+    "recovery_rate": null,
+    "n_triggers": 0,
+    "episodes_with_trigger": 0
+  },
+  {
+    "method": "Ours-mlp",
+    "run": "outputs/rasr/ant/p2p3/test/ps42/rasr_b20",
+    "n": 50,
+    "success": 19,
+    "success_rate": 38.0,
+    "wilson95": [
+      25.86259584257722,
+      51.849804977606425
+    ],
+    "vs_base_lost": 6,
+    "vs_base_gained": 7,
+    "mcnemar_p": 1.0,
+    "gained_tasks": [
+      1,
+      17,
+      23,
+      25,
+      40,
+      45,
+      48
+    ],
+    "lost_tasks": [
+      5,
+      9,
+      12,
+      19,
+      31,
+      33
+    ],
+    "steps_to_success": 233.68421052631578,
+    "planning_calls": 36.0,
+    "pred_calls_l1": 3517.16,
+    "pred_calls_l2": 9070.36,
+    "pred_rows_total_M": 1.8517208600000001,
+    "planning_wall_clock_s": 354.96587840447665,
+    "triggers_per_ep": 5.66,
+    "trigger_kinds": {
+      "goal_stall": 128,
+      "subgoal_miss": 155
+    },
+    "repair_calls_per_ep": 14.78,
+    "repair_kinds": {
+      "subgoal_repair": 701,
+      "subgoal_repair+fallback_full_replan": 38
+    },
+    "fallback_calls_per_ep": 0.76,
+    "extra_toplevel_solves_per_ep": 15.54,
+    "rerank_changed_frac": 0.472258064516129,
+    "recovery_rate": 0.24381625441696114,
+    "n_triggers": 283,
+    "episodes_with_trigger": 50
+  }
+]
