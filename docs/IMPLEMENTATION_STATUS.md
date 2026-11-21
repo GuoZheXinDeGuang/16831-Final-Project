@@ -243,8 +243,8 @@ fidelity is reported, never closed-loop success.
   because `launch_ant_p2p3.sh` was edited while the chain was running (no partial outputs). EGL `__del__` tracebacks at exit are harmless.
 - **AntMaze P4 seeds (2026-11-20; `scripts/run_ant_seed_job.sh`, queue `outputs/rasr/ant/p4_jobs.txt`, xargs -P 12;
   `python scripts/aggregate_seeds.py --env ant` → `outputs/rasr/ant/p4_seeds/aggregate.{json,md}`):** planner seeds 43/44
-  (+ B2 at seed 42). B1 seed 42 re-run on task 0 is bit-identical. Mean ± SE over 3 seeds, pooled 150 eps, McNemar vs B1:
-  B1 38.0 ± 2.0; B2 44 (seed 42 only, p 0.42); B3 35.3 ± 2.7 (p 0.60); B4 48.0 ± 2.3 (+23/−8, p 0.01);
+  (+ B2 at all 3 seeds; B2 43/44 run 2026-11-20 19:00–20:22). B1 seed 42 re-run on task 0 is bit-identical. Mean ± SE over 3 seeds, pooled 150 eps, McNemar vs B1:
+  B1 38.0 ± 2.0; B2 44.7 ± 1.8 (+23/−13, p 0.13; Ours−R vs B2 +29/−15, p 0.05); B3 35.3 ± 2.7 (p 0.60); B4 48.0 ± 2.3 (+23/−8, p 0.01);
   Ours 26.7 ± 4.8 (+12/−29, p 0.01); **Ours−R 54.0 ± 1.2 (+33/−9, p 0.0003)**, ahead at every seed. Ours−R vs B4 +20/−11 (p 0.15),
   vs Ours +48/−7. No OOM.
 

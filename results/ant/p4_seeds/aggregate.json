@@ -27,25 +27,25 @@
     "method": "B2",
     "per_seed": {
       "42": 44.0,
-      "43": null,
-      "44": null
+      "43": 42.0,
+      "44": 48.0
     },
-    "n_seeds": 1,
-    "mean": 44.0,
-    "se": null,
-    "pooled": "22/50",
+    "n_seeds": 3,
+    "mean": 44.666666666666664,
+    "se": 1.7638342073763937,
+    "pooled": "67/150",
     "pooled_wilson95": [
-      31.16198721023535,
-      57.69421319985648
+      36.94266500084245,
+      52.65702715004522
     ],
-    "gained": 9,
-    "lost": 5,
-    "mcnemar_p_pooled": 0.4239501953125,
-    "pred_calls_l2": 12149.18,
+    "gained": 23,
+    "lost": 13,
+    "mcnemar_p_pooled": 0.13249816396273673,
+    "pred_calls_l2": 12168.68,
     "extra_toplevel_solves_per_ep": 0.0,
     "triggers_per_ep": 0.0,
     "recovery_rate": null,
-    "steps_to_success": 245.6818181818182
+    "steps_to_success": 251.96735209235212
   },
   {
     "method": "B3",

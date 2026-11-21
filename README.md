@@ -23,7 +23,8 @@ Project website (all figures, tables, videos): https://claude.ai/artifact/KjymaN
 | paper | 81.3 ± 6.7% | 39.3 ± 3.7% | 38.42 ± 0.94% |
 | best reachability predictor, test AUROC | MLP 0.903 (ECE 0.022) | distance logistic 0.853 (MLP 0.777) | distance logistic 0.976 (MLP 0.826) |
 | reranking (P2) vs baseline | 84.7% vs 85.3% (3 seeds) | 35.3% vs 38.0%, p = 0.60 (3 seeds) | 37.98% vs 38.31%, p = 0.71; time-aligned label 38.85%, p = 0.78 |
-| full replan on trigger (B4) | — | 48.0% (+23 / −8, p = 0.01) | — |
+| replan every 5 steps (B2, 2× calls) | 82.0% (seed 42 only) vs 86.0% | 44.7% (+23 / −13, p = 0.13) | — |
+| full replan on trigger (B4) | 84.7% vs 85.3% (3 seeds) | 48.0% (+23 / −8, p = 0.01) | — |
 | rerank + repair (Ours) | 84.7% vs 85.3% | 26.7% (+12 / −29, p = 0.01) | — (no closed loop) |
 | repair without R (ablation) | 88.0% vs 85.3%, p = 0.22 | **54.0% (+33 / −9, p < 0.001)** | — |
 

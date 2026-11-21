@@ -93,7 +93,7 @@ SHARDS="0-16 17-33 34-49" PRED=outputs/rasr/ant/p1_reachability/dist_model.pt TA
   scripts/launch_ant_p2p3.sh test 42 rerank_l0.25 rasr_b20
 python scripts/compare_methods.py --method B1=outputs/rasr/ant/p0_baseline/ant_l2_ms42_ps42 \
   --method B3=outputs/rasr/ant/p2p3/test/ps42/rerank_l0.25_dist ... --out outputs/rasr/ant/p2p3/compare_test.json
-# P4: planner seeds 43/44 (+ B2 seed 42); one line per job: <method> <planner seed> <task shard>
+# P4: planner seeds 43/44 (+ B2 seed 42; B2 43/44 in p4_jobs_b2.txt); one line per job: <method> <planner seed> <task shard>
 xargs -P 12 -L 1 scripts/run_ant_seed_job.sh < outputs/rasr/ant/p4_jobs.txt
 python scripts/aggregate_seeds.py --env ant   # -> outputs/rasr/ant/p4_seeds/aggregate.{json,md}
 ```
