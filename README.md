@@ -13,8 +13,6 @@
 Environments: **FourRoom Distractors** (full study), **Visual AntMaze** (full pipeline), **DROID** (limited offline check:
 open-loop, real-robot video, no simulator).
 
-Project website (all figures, tables, videos): https://claude.ai/artifact/KjymaNKMpWzEbhYGzqz9ky
-
 ## Results (summary)
 
 | | FourRoom | Visual AntMaze | DROID (offline) |
