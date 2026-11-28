@@ -1,0 +1,8 @@
+mode: repair_noR
+novelty_beta: 50.0
+eps: 12.0563
+novelty_sigma2: 45.0092
+reach_H: 10
+reach_n_steps: 90
+reach_num_samples: 25
+miss_m: 1000

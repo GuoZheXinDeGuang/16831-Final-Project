@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One AntMaze job (v2 rerun, A6000): <split> <method> <planner_seed> <task(s)>
-#   split: test (official 50, env seeds 100000+task) | val (RASR val 20, 300000+task) | train (RASR train 40, 200000+task)
+#   split: test[_ms<M>] (official 50, env seeds 100000+task) | val (RASR val 20, 300000+task) | train (RASR train 40, 200000+task)
 #   method: b1_baseline | src (baseline with snapshots, P1 source) | b2_freq_replan |
 #           <cfg>[_dist|_mlp] = configs/rasr/ant/<cfg>.yaml (+ predictor from outputs/rasr/ant/v2/p1_reachability)
 # Output: outputs/rasr/ant/v2/<split>/<method>/seed<S>/shard_<tasks>; skips finished jobs.
@@ -8,7 +8,9 @@ cd "$(dirname "$0")/.."
 source ./activate_rasr.sh
 export MUJOCO_GL=egl CUDA_VISIBLE_DEVICES=${GPU:-1}
 SPLIT=$1; M=$2; S=$3; TK=$4
-case $SPLIT in
+# split may carry a model seed: test_ms43 = official test tasks with world model seed 43 (default 42)
+MS=42; [[ $SPLIT == *_ms* ]] && MS=${SPLIT##*_ms}
+case ${SPLIT%%_ms*} in
   test)  TF=H-JEPA/h_jepa/assets/eval_trajs/ant/expert_grid_d3_n50.pt; ESB=100000 ;;
   val)   TF=$HJEPA_HOME/rasr_tasks/ant/ant_expert_grid_d3_val_s1001_n20.pt; ESB=300000 ;;
   train) TF=$HJEPA_HOME/rasr_tasks/ant/ant_expert_grid_d3_train_s1001_n40.pt; ESB=200000 ;;
@@ -33,7 +35,7 @@ esac
 mkdir -p outputs/rasr/logs/v2
 LOG=outputs/rasr/logs/v2/${SPLIT}_${M}_s${S}_${TK}.log
 for try in 1 2 3 4 5; do   # GPU is shared with other jobs: retry on CUDA OOM (episodes are deterministic per seed)
-  python scripts/run_baseline.py --config ant_l2 --model ant_hjepa_l2 --seed $S --tasks-file $TF --tasks $TK \
+  python scripts/run_baseline.py --config ant_l2 --model ant_hjepa_l2 --model-seed $MS --seed $S --tasks-file $TF --tasks $TK \
     --env-seed-base $ESB $SNAP $EXTRA --out $OUT > $LOG 2>&1
   [ "$(grep -c . $OUT/episodes.jsonl 2>/dev/null)" = "$N" ] && break
   grep -q OutOfMemoryError $LOG || break

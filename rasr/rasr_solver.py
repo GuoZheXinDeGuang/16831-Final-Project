@@ -59,6 +59,9 @@ class RASRConfig:
                                     # expected: lam (1-R) relu(C_cur - C)  (lam=1: expected final cost R C + (1-R) C_cur)
     reach_tau: float = 0.5          # hinge threshold
     miss_memory: bool = False       # R_eff(g) = R(g) * prod_j (1 - exp(-||g - m_j||^2 / sigma2)), m_j = missed subgoals
+    # v3 (post-hoc ablations / ideas for the repair itself)
+    always_repair: bool = False     # apply the repair objective at every call (no stall trigger)
+    adaptive_window: int = 0        # >0: novelty beta x (number of triggers in the last `adaptive_window` calls)
 
 
 class RASRHierarchicalSolver(HierarchicalSolver):
@@ -84,6 +87,8 @@ class RASRHierarchicalSolver(HierarchicalSolver):
         self.visited = []
         self.goal_dists = []
         self.missed = []
+        self.trigger_calls = []
+        self.n_calls = 0
 
     def pop_episode_log(self):
         log, self.call_log = self.call_log, []
@@ -196,16 +201,22 @@ class RASRHierarchicalSolver(HierarchicalSolver):
             self._consume_hold()
             self._log.update({"trigger": None, "repair": "goal_direct", "fallback": True, "hold_left": int(self.hold_left)})
             return
-        if rc.mode in ("rasr", "full_replan", "repair_noR") and self.cooldown_left == 0 and self.hold_left == 0:
+        self.n_calls += 1
+        if rc.always_repair and rc.mode == "repair_noR":
+            self.cooldown_left = 0
+            if self.hold_left == 0:
+                self._trigger = "always"
+        elif rc.mode in ("rasr", "full_replan", "repair_noR") and self.cooldown_left == 0 and self.hold_left == 0:
             gd = self.goal_dists
             if self.miss_run >= rc.miss_m:
                 self._trigger = "subgoal_miss"
             elif rc.stall_w > 0 and len(gd) > rc.stall_w and min(gd[-rc.stall_w:]) > (1 - rc.stall_frac) * min(gd[:-rc.stall_w]):
                 self._trigger = "goal_stall"
         if self._trigger is not None:
+            self.trigger_calls.append(self.n_calls)
             self.miss_run = 0
             self.goal_dists = self.goal_dists[-1:]
-            self.hold_left = 1 if rc.mode == "full_replan" else rc.repair_hold
+            self.hold_left = 1 if (rc.mode == "full_replan" or rc.always_repair) else rc.repair_hold
         self._log.update({"trigger": self._trigger, "hold_left": int(self.hold_left)})
 
     def _consume_hold(self):
@@ -340,7 +351,7 @@ class RASRHierarchicalSolver(HierarchicalSolver):
             else:
                 lam_r = rc.repair_lam if rc.mode == "rasr" else 0.0
                 P, A, C, sel, R2 = self._resolve(level, level_info, planning_horizon, steps_taken, eval_budget,
-                                                 z, init=None, lam=lam_r, beta=rc.novelty_beta, c_ref=c_ref)
+                                                 z, init=None, lam=lam_r, beta=self._beta_eff(), c_ref=c_ref)
                 log.update({"repair": "subgoal_repair", "repair_R": None if R2 is None else float(R2[sel]),
                             "repair_novelty": float(self._novelty(P[sel][None])[0])})
                 bad = (rc.mode == "rasr" and R2 is not None and float(R2[sel]) < rc.repair_min_reach) or \
@@ -362,6 +373,14 @@ class RASRHierarchicalSolver(HierarchicalSolver):
         self.prev_plan = P[sel].detach()
         self.prev_actions = A[sel].detach()
         return P[sel][None].cpu(), A[sel][None].cpu()
+
+    def _beta_eff(self):
+        rc = self.rcfg
+        if rc.adaptive_window <= 0:
+            return rc.novelty_beta
+        n = sum(1 for c in self.trigger_calls if c > self.n_calls - rc.adaptive_window)
+        self._log["beta_eff"] = rc.novelty_beta * max(1, n)
+        return rc.novelty_beta * max(1, n)
 
     def _novelty(self, preds):
         """Visited-region penalty of plan waypoints 1..novelty_steps: max_j exp(-||w - z_j||^2 / sigma2)

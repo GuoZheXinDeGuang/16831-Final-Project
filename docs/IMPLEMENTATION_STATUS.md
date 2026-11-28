@@ -297,6 +297,43 @@ the novel subgoal, the expected-cost form is indifferent to progress whenever R 
 every novel subgoal), and reranking with R picks near-current-state subgoals every call. Online miss memory does not help.
 Conclusion: in AntMaze, "reachable" (by a learned predictor) and "useful for escaping a stall" point in opposite directions.
 
+## v3 (2026-11-28): robustness of the final method, component ablations, refinements, slide assets — DONE
+Final method = repair without R, novelty β = 50 (`configs/rasr/ant/repair_noR_b50.yaml`). Same machine and protocol as v2
+(GPU 1 only, now unshared; 1,360 episodes; no OOM; no missing outputs).
+- **Other world models** (`ant_hjepa_l2` model seeds 43 / 44, downloaded; split names `test_ms43`, `test_ms44` in
+  `run_ant_job.sh`). Hyperparameters unchanged (no retuning). One baseline episode per model showed the same latent scale
+  (‖z‖ ≈ 22, initial goal distance² 760–810), so ε and σ² are reused.
+  | world model | B1 (planner seeds 42/43/44) | final (42/43/44) | +gained / −lost | p |
+  |---|---|---|---|---|
+  | 42 | 46 / 38 / 32 (38.7%) | 62 / 48 / 52 (54.0%) | +32 / −9 | 0.0004 |
+  | 43 | 44 / 42 / 42 (42.7%) | 54 / 52 / 52 (52.7%) | +37 / −22 | 0.067 |
+  | 44 | 42 / 38 / 36 (38.7%) | 44 / 50 / 50 (48.0%) | +30 / −16 | 0.054 |
+  | **pooled, 450 paired episodes** | **40.0%** | **51.6%** | **+99 / −47** | **2.0e-5** |
+  The final method is ahead in 9/9 (world model × planner seed) cells.
+- **Component ablations on test** (model seed 42, 3 planner seeds; new solver flag `always_repair`; triggers switched off
+  through `miss_m: 1000` / `stall_w: 0`; configs `v3_*.yaml`). These are ablations, not used for selection.
+  | variant | success | vs B1 | vs final | L2 calls/ep |
+  |---|---|---|---|---|
+  | novelty always on (no trigger) | 50.0% | +38/−21, p 0.036 | p 0.49 | 12763 |
+  | stall trigger only | 50.0% | +27/−10, p 0.008 | p 0.36 | 8134 |
+  | miss trigger only | 49.3% | +27/−11, p 0.014 | p 0.25 | 7943 |
+  | B2: replan every 5 steps (2× compute) | 41.3% | +18/−14, p 0.60 | +31/−12, p 0.005 | 12254 |
+  Every variant with the novelty term beats B1 (49–54%); every variant without it (B2, B4, β = 0, R variants) stays at
+  the baseline (38–41%), even at 2× planning compute. The trigger itself is not what makes it work. Its value is
+  efficiency: the triggered method reaches the same or higher success with about 30% fewer level-2 calls than always-on
+  novelty. Final vs B4 +33/−12 (p 0.002), vs β = 0 +34/−10 (p 0.0002).
+- **Refinements tried on val** (20 × 2 seeds; selection protocol, none promoted to test): adaptive β (β × triggers in
+  the last 10 calls, new flag `adaptive_window`) 32.5%, novelty kernel σ² × 2 35.0%, novelty on 4 waypoints 32.5%,
+  repair hold 6 calls 30.0%, vs the final method's 37.5% and B1's 30.0%. Read this as: the method is not sensitive to
+  these settings, and none improves on it.
+- **Slide assets.** `scripts/make_ant_videos.py` renders top-down maze videos from the logged episodes, with no
+  re-simulation. Each video shows the xy trail, the goal, and the current subgoal decoded by an analysis-only kNN
+  latent→xy probe over train/val source frames; the subgoal turns orange while a repair is active. The maze orientation
+  was checked: 0% of 105k logged positions fall in wall cells, vs 35% if transposed. `scripts/make_slide_videos.sh`
+  renders 9 comparison videos (+ single-method cuts). `scripts/make_slide_figures.py` makes 4 figures: main test bars
+  with 95% CI, a 9-cell robustness dumbbell, mechanism (novelty similarity vs success), and val R attempts. All are
+  exported to `results/ant/v2/{figures,videos}/`.
+
 ## Code repository
 https://github.com/GuoZheXinDeGuang/16831-Final-Project (`Project/` is its own git repo; see README.md, docs/RUN.md).
 

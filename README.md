@@ -61,7 +61,23 @@ new ways of using R, all selected on val (20 tasks × 2 seeds) before testing (5
   novelty at all (median similarity 0.32 vs 0.34, against 0.02 with β = 50). A weak R term lets novelty win, but the R gate
   then vetoes 79% of those repairs. A distance-like predictor rates every novel subgoal as unreachable.
 
-Details: `docs/IMPLEMENTATION_STATUS.md` (section v2) and `results/ant/v2/`.
+**Does the final method really work? (v3)**
+
+- **Robust across world models.** Rerun on the other two published AntMaze world models (seeds 43, 44) with the same
+  hyperparameters, no retuning. It beats the baseline in **9/9** (world model × planner seed) cells:
+  **51.6% vs 40.0%** over 450 paired episodes (+99 / −47, McNemar p = 2 × 10⁻⁵).
+- **Novelty is the cause, not extra compute.** Every variant with the novelty term beats the baseline (49–54%): always
+  on, stall trigger only, miss trigger only, β = 20, β = 50. Every variant without it stays at the baseline (38–41%),
+  including replanning every 5 steps at **2× compute** (41.3%; final method vs B2 +31 / −12, p = 0.005). The stall trigger
+  doesn't create the gain, but it saves about 30% of planning compute compared with always-on novelty.
+- **Not sensitive to tuning.** Four refinements tried on val (adaptive β, wider kernel, more waypoints, longer hold)
+  scored 30–35% vs the final method's 37.5%; none was promoted.
+
+Figures: `results/ant/v2/figures/` (main test results, 9-cell robustness, mechanism, val R attempts).
+Videos: `results/ant/v2/videos/` (top-down maze; baseline vs original method vs ablations vs final method, R-fix
+attempts, more successes, a failure case).
+
+Details: `docs/IMPLEMENTATION_STATUS.md` (sections v2 and v3) and `results/ant/v2/`.
 
 Full numbers: `results/` (exported summaries) and `docs/IMPLEMENTATION_STATUS.md` (running log of every decision).
 

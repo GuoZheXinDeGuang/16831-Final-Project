@@ -1,12 +1,4 @@
 {
- "test/baseline_copy": {
-  "calls": 36,
-  "repair_call_frac": 0.0,
-  "repaired_subgoal_visited_similarity_median": null,
-  "repair_fallback_frac": null,
-  "rerank_changed_frac": 0.0,
-  "R_selected_median": null
- },
  "test/full_replan": {
   "calls": 5400,
   "repair_call_frac": 0.15166666666666667,
@@ -54,6 +46,46 @@
   "repair_fallback_frac": 0.7880918893577121,
   "rerank_changed_frac": 0.0,
   "R_selected_median": 0.4769080728292465
+ },
+ "test/v3_always": {
+  "calls": 5400,
+  "repair_call_frac": 0.8611111111111112,
+  "repaired_subgoal_visited_similarity_median": 0.016284705139696598,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test/v3_missonly": {
+  "calls": 5400,
+  "repair_call_frac": 0.27574074074074073,
+  "repaired_subgoal_visited_similarity_median": 0.017577968537807465,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test/v3_stallonly": {
+  "calls": 5400,
+  "repair_call_frac": 0.2712962962962963,
+  "repaired_subgoal_visited_similarity_median": 0.015227683819830418,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test_ms43/repair_noR_b50": {
+  "calls": 5400,
+  "repair_call_frac": 0.43925925925925924,
+  "repaired_subgoal_visited_similarity_median": 0.01800515316426754,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test_ms44/repair_noR_b50": {
+  "calls": 5400,
+  "repair_call_frac": 0.41129629629629627,
+  "repaired_subgoal_visited_similarity_median": 0.018652314320206642,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
  },
  "val/full_replan": {
   "calls": 1440,
@@ -174,5 +206,37 @@
   "repair_fallback_frac": 0.0,
   "rerank_changed_frac": 0.0,
   "R_selected_median": 0.1243988461792469
+ },
+ "val/v3_adaptive": {
+  "calls": 1440,
+  "repair_call_frac": 0.4354166666666667,
+  "repaired_subgoal_visited_similarity_median": 0.010501442477107048,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/v3_hold6": {
+  "calls": 1440,
+  "repair_call_frac": 0.5888888888888889,
+  "repaired_subgoal_visited_similarity_median": 0.012601389549672604,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/v3_sigma2x": {
+  "calls": 1440,
+  "repair_call_frac": 0.46597222222222223,
+  "repaired_subgoal_visited_similarity_median": 0.08994677662849426,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/v3_steps4": {
+  "calls": 1440,
+  "repair_call_frac": 0.4395833333333333,
+  "repaired_subgoal_visited_similarity_median": 0.009299401193857193,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
  }
 }
