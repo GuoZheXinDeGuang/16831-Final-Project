@@ -1,0 +1,242 @@
+{
+ "test/full_replan": {
+  "calls": 5400,
+  "repair_call_frac": 0.15166666666666667,
+  "repaired_subgoal_visited_similarity_median": null,
+  "repair_fallback_frac": 1.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test/rasr_b20_dist": {
+  "calls": 5400,
+  "repair_call_frac": 0.3938888888888889,
+  "repaired_subgoal_visited_similarity_median": 0.32012373208999634,
+  "repair_fallback_frac": 0.021156558533145273,
+  "rerank_changed_frac": 0.527962962962963,
+  "R_selected_median": 0.7847912311553955
+ },
+ "test/repair_noR": {
+  "calls": 5832,
+  "repair_call_frac": 0.43621399176954734,
+  "repaired_subgoal_visited_similarity_median": 0.02549266628921032,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test/repair_noR_b0": {
+  "calls": 5400,
+  "repair_call_frac": 0.40574074074074074,
+  "repaired_subgoal_visited_similarity_median": 0.33831527829170227,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test/repair_noR_b50": {
+  "calls": 5400,
+  "repair_call_frac": 0.42537037037037034,
+  "repaired_subgoal_visited_similarity_median": 0.019360654056072235,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test/v2_lr1_dist": {
+  "calls": 5400,
+  "repair_call_frac": 0.395,
+  "repaired_subgoal_visited_similarity_median": 0.03214620426297188,
+  "repair_fallback_frac": 0.7880918893577121,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": 0.4769080728292465
+ },
+ "test/v3_always": {
+  "calls": 5400,
+  "repair_call_frac": 0.8611111111111112,
+  "repaired_subgoal_visited_similarity_median": 0.016284705139696598,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test/v3_missonly": {
+  "calls": 5400,
+  "repair_call_frac": 0.27574074074074073,
+  "repaired_subgoal_visited_similarity_median": 0.017577968537807465,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test/v3_stallonly": {
+  "calls": 5400,
+  "repair_call_frac": 0.2712962962962963,
+  "repaired_subgoal_visited_similarity_median": 0.015227683819830418,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test_ms43/repair_noR_b50": {
+  "calls": 5400,
+  "repair_call_frac": 0.43925925925925924,
+  "repaired_subgoal_visited_similarity_median": 0.01800515316426754,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "test_ms44/repair_noR_b50": {
+  "calls": 5400,
+  "repair_call_frac": 0.41129629629629627,
+  "repaired_subgoal_visited_similarity_median": 0.018652314320206642,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/full_replan": {
+  "calls": 1440,
+  "repair_call_frac": 0.1638888888888889,
+  "repaired_subgoal_visited_similarity_median": null,
+  "repair_fallback_frac": 1.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/rasr_b20_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.4173611111111111,
+  "repaired_subgoal_visited_similarity_median": 0.3226070702075958,
+  "repair_fallback_frac": 0.0033277870216306157,
+  "rerank_changed_frac": 0.5951388888888889,
+  "R_selected_median": 0.7982581853866577
+ },
+ "val/repair_noR": {
+  "calls": 1440,
+  "repair_call_frac": 0.44583333333333336,
+  "repaired_subgoal_visited_similarity_median": 0.018167808651924133,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/repair_noR_b0": {
+  "calls": 1440,
+  "repair_call_frac": 0.42986111111111114,
+  "repaired_subgoal_visited_similarity_median": 0.3346741497516632,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/repair_noR_b5": {
+  "calls": 1440,
+  "repair_call_frac": 0.4444444444444444,
+  "repaired_subgoal_visited_similarity_median": 0.020025279372930527,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/repair_noR_b50": {
+  "calls": 1440,
+  "repair_call_frac": 0.42986111111111114,
+  "repaired_subgoal_visited_similarity_median": 0.014362523332238197,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/v2_exp_full_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.4340277777777778,
+  "repaired_subgoal_visited_similarity_median": 0.02490362524986267,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.6756944444444445,
+  "R_selected_median": 0.6477016806602478
+ },
+ "val/v2_exp_rerank_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.0,
+  "repaired_subgoal_visited_similarity_median": null,
+  "repair_fallback_frac": null,
+  "rerank_changed_frac": 0.6416666666666667,
+  "R_selected_median": 0.9074251651763916
+ },
+ "val/v2_expected_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.45902777777777776,
+  "repaired_subgoal_visited_similarity_median": 0.020891202613711357,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": 0.2503383159637451
+ },
+ "val/v2_hinge_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.425,
+  "repaired_subgoal_visited_similarity_median": 0.14594338834285736,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": 0.45040611922740936
+ },
+ "val/v2_lr10_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.4111111111111111,
+  "repaired_subgoal_visited_similarity_median": 0.3198375403881073,
+  "repair_fallback_frac": 0.013513513513513514,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": 0.7398069798946381
+ },
+ "val/v2_lr10_nogate_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.4111111111111111,
+  "repaired_subgoal_visited_similarity_median": 0.3196048438549042,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": 0.7381445467472076
+ },
+ "val/v2_lr1_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.41944444444444445,
+  "repaired_subgoal_visited_similarity_median": 0.023906566202640533,
+  "repair_fallback_frac": 0.8460264900662252,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": 0.47055812180042267
+ },
+ "val/v2_lr3_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.42916666666666664,
+  "repaired_subgoal_visited_similarity_median": 0.07289339601993561,
+  "repair_fallback_frac": 0.5598705501618123,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": 0.43381138145923615
+ },
+ "val/v2_memory_dist": {
+  "calls": 1440,
+  "repair_call_frac": 0.45625,
+  "repaired_subgoal_visited_similarity_median": 0.016540465876460075,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": 0.1243988461792469
+ },
+ "val/v3_adaptive": {
+  "calls": 1440,
+  "repair_call_frac": 0.4354166666666667,
+  "repaired_subgoal_visited_similarity_median": 0.010501442477107048,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/v3_hold6": {
+  "calls": 1440,
+  "repair_call_frac": 0.5888888888888889,
+  "repaired_subgoal_visited_similarity_median": 0.012601389549672604,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/v3_sigma2x": {
+  "calls": 1440,
+  "repair_call_frac": 0.46597222222222223,
+  "repaired_subgoal_visited_similarity_median": 0.08994677662849426,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ },
+ "val/v3_steps4": {
+  "calls": 1440,
+  "repair_call_frac": 0.4395833333333333,
+  "repaired_subgoal_visited_similarity_median": 0.009299401193857193,
+  "repair_fallback_frac": 0.0,
+  "rerank_changed_frac": 0.0,
+  "R_selected_median": null
+ }
+}

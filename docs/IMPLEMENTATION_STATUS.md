@@ -248,6 +248,92 @@ fidelity is reported, never closed-loop success.
   Ours 26.7 ± 4.8 (+12/−29, p 0.01); **Ours−R 54.0 ± 1.2 (+33/−9, p 0.0003)**, ahead at every seed. Ours−R vs B4 +20/−11 (p 0.15),
   vs Ours +48/−7. No OOM.
 
+## v2 (2026-11-26/27): AntMaze rerun on an RTX A6000 + attempts to make R useful — DONE
+Motivation: test whether the reachability term can be made to help (it hurt AntMaze in the main study), and which part of
+Ours−R does the work. New machine (2× RTX A6000, GPU 1 only, shared with unrelated jobs); everything rebuilt from docs/RUN.md.
+- **Not bit-identical across GPUs.** 4090 → A6000 changes trajectories (task 0: 251 → 211 steps), so *every* method
+  was rerun here and compared only with the B1 rerun on the same machine. Within this machine runs stay deterministic:
+  RASR `mode: baseline` reproduces the plain planner bit for bit (task 0: xy / actions / subgoals / latents max diff 0.0).
+  `tests/test_p2p3_solver.py` needs the FourRoom checkpoints, which were not downloaded here.
+- P1 recollected (train 40 / val 20 tasks, same budgets and strides). No test attempts, so the predictors' "test" columns
+  are val (`train_reachability.py --test-is-val`). Val AUROC: distance logistic 0.884 (was 0.869), MLP 0.794 (0.829),
+  kNN 0.685. Distance logistic is val-selected again. eps recalibrates to 12.16 (configs keep 12.06).
+- New solver options (`rasr/rasr_solver.py`; defaults unchanged, checked bit-identical): `reach_form` = log | hinge (penalise
+  only R < τ) | expected (score = R·C + (1−R)·C_cur, i.e. expected goal cost if the subgoal fails), `miss_memory`
+  (R discounted near subgoals already missed this episode). Configs `configs/rasr/ant/v2_*.yaml`, `repair_noR_b{0,5,50}.yaml`.
+- Runner `scripts/run_ant_job.sh <split> <method> <seed> <task>` (one task per job, OOM retry, lock); chain
+  `scripts/v2_chain.sh`; tables `python3 scripts/aggregate_v2.py {val,test} [--ref m]`. Outputs `outputs/rasr/ant/v2/`,
+  exported to `results/ant/v2/` (aggregate tables, per-episode CSV, mechanism.json).
+- Incidents: one CUDA OOM (other users' jobs on the GPU) → retry added. An accidental `pkill -f` killed 12 Ours−R test
+  episodes before they wrote results; they were detected by a scan and rerun (no partial outputs used).
+
+**Val (RASR val tasks, 20 × planner seeds 42/43; B1 12/40 = 30%).** Every R variant ≤ B1. Any variant that reranks with R:
+10–12.5% (original Ours 4/40, p 0.021; expected-rerank 5/40, p 0.039). Repair with R: λ_R 1 / 3 / 10 → 27.5 / 25 / 25%;
+gate off 22.5%; hinge 22.5%; miss-memory 15%; expected 10% (p 0.039). Repair without R, β 0 / 5 / 20 / 50 → 30 / 32.5 /
+35 / **37.5%**; B4 32.5%. Selected for test: β = 50 (one episode above β = 20: a weak selection) and, as the best R
+variant, λ_R = 1 without rerank.
+
+**Test (official 50 tasks × planner seeds 42/43/44, model seed 42; mean ± SE over seeds; McNemar vs B1 pooled):**
+
+| method | seed 42 / 43 / 44 | mean ± SE | +gained / −lost vs B1 | p | L2 calls/ep |
+|---|---|---|---|---|---|
+| B1 baseline | 46 / 38 / 32 | 38.7 ± 4.1 | — | — | 6105 |
+| B4 full replan on trigger | 36 / 42 / 42 | 40.0 ± 2.0 | +21 / −19 | 0.88 | 7260 |
+| Ours (rerank + repair with R, original) | 22 / 28 / 30 | 26.7 ± 2.4 | +12 / −30 | 0.008 | 8787 |
+| best R variant (repair λ_R = 1, no rerank) | 42 / 36 / 42 | 40.0 ± 2.0 | +18 / −16 | 0.86 | 10949 |
+| repair without R, β = 0 (no novelty) | 36 / 38 / 40 | 38.0 ± 1.2 | +15 / −16 | 1.00 | 8902 |
+| repair without R, β = 20 (Ours−R) | 44 / 58 / 52 | 51.3 ± 4.1 | +38 / −19 | 0.016 | 9244 |
+| **repair without R, β = 50 (val-selected)** | 62 / 48 / 52 | **54.0 ± 4.2** | **+32 / −9** | **0.0004** | 9090 |
+
+β = 50 vs B4 +33/−12 (p 0.003), vs β = 0 +34/−10 (p 0.0004), vs β = 20 +29/−25 (p 0.68, i.e. the same).
+The original Ours reproduces exactly (26.7% on both GPUs); Ours−R β = 20 reproduces its gain (51.3% vs 54.0% on the 4090).
+
+**Mechanism (test call logs; repaired-subgoal similarity to visited latents, 0 = novel, 1 = visited, median):**
+β = 50 0.019, β = 20 0.025, β = 0 0.338, original Ours (λ_R = 10) 0.320, λ_R = 1 0.032 but 79% of repairs vetoed by the
+R ≥ 0.3 check and replaced by a plain replan. So: (1) novelty is the active ingredient: without it repair = baseline, and
+B4 (re-solve on the same trigger) = baseline; (2) a distance-like R undoes it in every form tried: strong λ_R pulls the
+repaired subgoal back to the visited region (as non-novel as β = 0), weak λ_R lets novelty win but the R gate then vetoes
+the novel subgoal, the expected-cost form is indifferent to progress whenever R is low (which a distance prior says for
+every novel subgoal), and reranking with R picks near-current-state subgoals every call. Online miss memory does not help.
+Conclusion: in AntMaze, "reachable" (by a learned predictor) and "useful for escaping a stall" point in opposite directions.
+
+## v3 (2026-11-28): robustness of the final method, component ablations, refinements, slide assets — DONE
+Final method = repair without R, novelty β = 50 (`configs/rasr/ant/repair_noR_b50.yaml`). Same machine and protocol as v2
+(GPU 1 only, now unshared; 1,360 episodes; no OOM; no missing outputs).
+- **Other world models** (`ant_hjepa_l2` model seeds 43 / 44, downloaded; split names `test_ms43`, `test_ms44` in
+  `run_ant_job.sh`). Hyperparameters unchanged (no retuning). One baseline episode per model showed the same latent scale
+  (‖z‖ ≈ 22, initial goal distance² 760–810), so ε and σ² are reused.
+  | world model | B1 (planner seeds 42/43/44) | final (42/43/44) | +gained / −lost | p |
+  |---|---|---|---|---|
+  | 42 | 46 / 38 / 32 (38.7%) | 62 / 48 / 52 (54.0%) | +32 / −9 | 0.0004 |
+  | 43 | 44 / 42 / 42 (42.7%) | 54 / 52 / 52 (52.7%) | +37 / −22 | 0.067 |
+  | 44 | 42 / 38 / 36 (38.7%) | 44 / 50 / 50 (48.0%) | +30 / −16 | 0.054 |
+  | **pooled, 450 paired episodes** | **40.0%** | **51.6%** | **+99 / −47** | **2.0e-5** |
+  The final method is ahead in 9/9 (world model × planner seed) cells.
+- **Component ablations on test** (model seed 42, 3 planner seeds; new solver flag `always_repair`; triggers switched off
+  through `miss_m: 1000` / `stall_w: 0`; configs `v3_*.yaml`). These are ablations, not used for selection.
+  | variant | success | vs B1 | vs final | L2 calls/ep |
+  |---|---|---|---|---|
+  | novelty always on (no trigger) | 50.0% | +38/−21, p 0.036 | p 0.49 | 12763 |
+  | stall trigger only | 50.0% | +27/−10, p 0.008 | p 0.36 | 8134 |
+  | miss trigger only | 49.3% | +27/−11, p 0.014 | p 0.25 | 7943 |
+  | B2: replan every 5 steps (2× compute) | 41.3% | +18/−14, p 0.60 | +31/−12, p 0.005 | 12254 |
+  Every variant with the novelty term beats B1 (49–54%); every variant without it (B2, B4, β = 0, R variants) stays at
+  the baseline (38–41%), even at 2× planning compute. The trigger itself is not what makes it work. Its value is
+  efficiency: the triggered method reaches the same or higher success with about 30% fewer level-2 calls than always-on
+  novelty. Final vs B4 +33/−12 (p 0.002), vs β = 0 +34/−10 (p 0.0002).
+- **Refinements tried on val** (20 × 2 seeds; selection protocol, none promoted to test): adaptive β (β × triggers in
+  the last 10 calls, new flag `adaptive_window`) 32.5%, novelty kernel σ² × 2 35.0%, novelty on 4 waypoints 32.5%,
+  repair hold 6 calls 30.0%, vs the final method's 37.5% and B1's 30.0%. Read this as: the method is not sensitive to
+  these settings, and none improves on it.
+- **Slide assets.** `scripts/make_ant_videos.py` renders top-down maze videos from the logged episodes, with no
+  re-simulation. Each video shows the xy trail, the goal, and the current subgoal decoded by an analysis-only kNN
+  latent→xy probe over train/val source frames; the subgoal turns orange while a repair is active. The maze orientation
+  was checked: 0% of 105k logged positions fall in wall cells, vs 35% if transposed. `scripts/make_slide_videos.sh`
+  renders 9 comparison videos (+ single-method cuts). `scripts/make_slide_figures.py` makes 4 figures: main test bars
+  with 95% CI, a 9-cell robustness dumbbell, mechanism (novelty similarity vs success), and val R attempts. All are
+  exported to `results/ant/v2/{figures,videos}/`.
+
 ## Code repository
 https://github.com/GuoZheXinDeGuang/16831-Final-Project (`Project/` is its own git repo; see README.md, docs/RUN.md).
 
@@ -258,7 +344,9 @@ Chinese version: `docs/site_zh.json` (segment → translation; `python scripts/s
 Videos: `scripts/make_videos.py` (exact action replay, checked 0 px error), `scripts/make_branch_video.py`.
 
 ## Tests
-`python -m pytest -q tests/` → 7 passed.
+`python -m pytest -q tests/` → 7 passed (4090 machine). A6000 machine: unit tests 3 passed (run with
+`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`, a ROS pytest plugin on the path breaks collection); FourRoom GPU tests not runnable
+without FourRoom checkpoints; AntMaze baseline-mode equivalence checked by hand (see v2).
 
 ## Blockers
 - none

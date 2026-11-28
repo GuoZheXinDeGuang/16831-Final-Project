@@ -28,6 +28,8 @@ def main():
     ap.add_argument("--train-attempts", default="outputs/rasr/p1_attempts/train")
     ap.add_argument("--val-attempts", default="outputs/rasr/p1_attempts/val")
     ap.add_argument("--test-attempts", default="outputs/rasr/p1_attempts/test")
+    ap.add_argument("--test-is-val", action="store_true",
+                    help="no test attempts available: --test-attempts points at val (skip the val/test leakage check)")
     ap.add_argument("--train-baseline", default="outputs/rasr/p1_source/train")
     ap.add_argument("--radius-px", type=float, default=8.0,
                     help="eps radius in env xy units (FourRoom px; AntMaze maze units)")
@@ -54,7 +56,7 @@ def main():
     # leakage guard: splits come from different task files; assert no start-goal configuration is shared
     sg = {s: {tuple(np.round(np.r_[a["xy0"][i], a["goal_xy_task"][i]], 0)) for i in np.nonzero(a["call_idx"] == 0)[0]}
           for s, a in att.items()}
-    for s1, s2 in (("train", "val"), ("train", "test"), ("val", "test")):
+    for s1, s2 in (("train", "val"), ("train", "test")) + ((() if args.test_is_val else (("val", "test"),))):
         shared = sg[s1] & sg[s2]
         assert not shared, f"start-goal configs shared between {s1} and {s2}: {shared}"
     split_info = {s: {"n_tasks": int(len(np.unique(att[s]["task"]))), "n_attempts": int(len(att[s]["task"])),
