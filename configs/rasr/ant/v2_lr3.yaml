@@ -1,0 +1,9 @@
+mode: rasr
+lam: 0.0
+repair_lam: 3.0
+novelty_beta: 20.0
+eps: 12.0563
+novelty_sigma2: 45.0092
+reach_H: 10
+reach_n_steps: 90
+reach_num_samples: 25

@@ -38,6 +38,31 @@ Main findings (AntMaze: three planner seeds × 50 official tasks, pooled exact M
   the first 0.6 s of the expert video), so reranking picks conservative plans that the Fréchet metric does not reward.
   A post-hoc time-aligned label removes that shortcut but still gives no significant change (+0.5 points, p = 0.78).
 
+### Follow-up: can R be made useful in AntMaze? (A6000 rerun)
+
+We reran AntMaze on a second GPU (results are not bit-identical across GPUs, so every method was rerun there). We then tried
+new ways of using R, all selected on val (20 tasks × 2 seeds) before testing (50 tasks × 3 seeds, McNemar vs the rerun B1):
+
+| method (test) | success | vs B1 |
+|---|---|---|
+| B1 baseline | 38.7 ± 4.1% | — |
+| B4 full replan on trigger | 40.0 ± 2.0% | p = 0.88 |
+| Ours (rerank + repair with R) | 26.7 ± 2.4% | p = 0.008 (worse) |
+| best R variant on val (repair with λ_R = 1, no rerank) | 40.0 ± 2.0% | p = 0.86 |
+| repair without R, no novelty (β = 0) | 38.0 ± 1.2% | p = 1.00 |
+| **repair without R, novelty β = 50 (val-selected)** | **54.0 ± 4.2%** | **+32 / −9, p < 0.001** |
+
+- **Nothing that uses R beats the baseline.** On val we tried a hinge (penalise only R < τ), an expected-cost score
+  `R·C + (1−R)·C_cur`, discounting R near subgoals already missed, and a sweep over λ_R with and without the R ≥ 0.3 gate.
+  Every one scored at or below B1, and the reranking variants were significantly worse.
+- **Novelty is what makes the repair work.** Without the visited-region term, repair is no better than the baseline. A plain
+  re-solve on the same trigger (B4) isn't either.
+- **Why R hurts (from the call logs):** a strong R term makes repaired subgoals as close to visited states as having no
+  novelty at all (median similarity 0.32 vs 0.34, against 0.02 with β = 50). A weak R term lets novelty win, but the R gate
+  then vetoes 79% of those repairs. A distance-like predictor rates every novel subgoal as unreachable.
+
+Details: `docs/IMPLEMENTATION_STATUS.md` (section v2) and `results/ant/v2/`.
+
 Full numbers: `results/` (exported summaries) and `docs/IMPLEMENTATION_STATUS.md` (running log of every decision).
 
 ## Repository layout

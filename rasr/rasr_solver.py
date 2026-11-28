@@ -54,6 +54,11 @@ class RASRConfig:
     fallback: str = "full_replan"
     passthrough: bool = False       # log pool statistics but return the upstream choice unchanged
     dump_alt_k: int = 0             # log k non-selected candidate subgoals (R-stratified) per call   # full_replan | goal_direct (bypass the top level; level 1 -> real goal)
+    # v2 (post-hoc, AntMaze): how R enters selection / repair scores
+    reach_form: str = "log"         # log: -lam c_ref log(R+delta) | hinge: lam c_ref relu(log tau - log(R+delta))
+                                    # expected: lam (1-R) relu(C_cur - C)  (lam=1: expected final cost R C + (1-R) C_cur)
+    reach_tau: float = 0.5          # hinge threshold
+    miss_memory: bool = False       # R_eff(g) = R(g) * prod_j (1 - exp(-||g - m_j||^2 / sigma2)), m_j = missed subgoals
 
 
 class RASRHierarchicalSolver(HierarchicalSolver):
@@ -78,6 +83,7 @@ class RASRHierarchicalSolver(HierarchicalSolver):
         self._goal_direct_now = False
         self.visited = []
         self.goal_dists = []
+        self.missed = []
 
     def pop_episode_log(self):
         log, self.call_log = self.call_log, []
@@ -217,6 +223,8 @@ class RASRHierarchicalSolver(HierarchicalSolver):
         if self.prev_subgoal is not None:
             d = float(((z - self.prev_subgoal.to(z.device)) ** 2).sum())
             missed = d > self.rcfg.eps
+            if missed:
+                self.missed.append(self.prev_subgoal.detach().float())
             self.miss_run = self.miss_run + 1 if missed else 0
             self._log.update({"prev_subgoal_dist": d, "prev_subgoal_missed": bool(missed)})
         self._log["miss_run"] = int(self.miss_run)
@@ -249,14 +257,35 @@ class RASRHierarchicalSolver(HierarchicalSolver):
         K = g.shape[0]
         c = torch.tensor([np.log(self.rcfg.reach_H), np.log(self.rcfg.reach_n_steps),
                           np.log(self.rcfg.reach_num_samples)], device=g.device, dtype=torch.float32).expand(K, 3)
-        return p(z.expand(K, -1).to(g.device), g, c)
+        return p(z.expand(K, -1).to(g.device), g, c) * self._miss_factor(g)
+
+    def _miss_factor(self, g):
+        """Failure memory (planner-visible): subgoals near ones the controller already missed this episode
+        are less reachable than the static predictor says."""
+        if not self.rcfg.miss_memory or not self.missed:
+            return torch.ones(g.shape[0], device=g.device)
+        M = torch.stack(self.missed).to(g.device)
+        d = ((g.float()[:, None] - M[None]) ** 2).sum(-1)
+        return torch.prod(1 - torch.exp(-d / self.rcfg.novelty_sigma2), dim=-1).clamp_min(0.0)
+
+    def _reach_pen(self, R, C, c_ref, lam):
+        """Additive reachability term of the selection / repair score (lower is better)."""
+        rc = self.rcfg
+        if rc.reach_form == "log":
+            return -lam * c_ref * torch.log(R + rc.delta)
+        if rc.reach_form == "hinge":
+            return lam * c_ref * torch.relu(np.log(rc.reach_tau) - torch.log(R + rc.delta))
+        if rc.reach_form == "expected":
+            c_cur = self.goal_dists[-1] if self.goal_dists else float(C.max())
+            return lam * (1 - R) * torch.relu(c_cur - C)
+        raise ValueError(rc.reach_form)
 
     def _scores(self, cost, R, lam):
         """Reachability-aware selection score. lam is a *relative* trade-off: the penalty is
         scaled by the call's best progress cost, so lam=0.5 accepts a candidate whose cost is
         up to 0.5 * c_min * delta(-log R) worse."""
         c_ref = cost.min().clamp_min(1e-6)
-        return cost - lam * c_ref * torch.log(R + self.rcfg.delta)
+        return cost + self._reach_pen(R, cost, c_ref, lam)
 
     def _reach_c(self, K, device):
         return torch.tensor([np.log(self.rcfg.reach_H), np.log(self.rcfg.reach_n_steps),
@@ -360,8 +389,8 @@ class RASRHierarchicalSolver(HierarchicalSolver):
                 if use_r:
                     g = preds[:, 1].float()
                     S = g.shape[0]
-                    r = pred(z.expand(S, -1), g, self._reach_c(S, g.device))
-                    cost = cost - lam * c_ref * torch.log(r + rc.delta)[None]
+                    r = pred(z.expand(S, -1), g, self._reach_c(S, g.device)) * self._miss_factor(g)
+                    cost = cost + self._reach_pen(r, cost[0], c_ref, lam)[None]
                 if beta > 0:
                     cost = cost + beta * c_ref * self._novelty(preds)[None]
                 return cost
@@ -376,7 +405,7 @@ class RASRHierarchicalSolver(HierarchicalSolver):
         R = self._reach(z, P[:, 1]) if pred is not None else None
         score = C.clone()
         if lam > 0 and R is not None:
-            score = score - lam * c_ref * torch.log(R + rc.delta)
+            score = score + self._reach_pen(R, C, c_ref, lam)
         if beta > 0:
             score = score + beta * c_ref * self._novelty(P)
         sel = int(torch.argmin(score))
